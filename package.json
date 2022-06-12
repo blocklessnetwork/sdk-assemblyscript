@@ -1,0 +1,22 @@
+{
+  "scripts": {
+    "build:debug": "asc assembly/index.ts --target debug",
+    "build:release": "asc assembly/index.ts --target release",
+    "clean": "rm -rf build/*"
+  },
+  "dependencies": {
+    "as-wasi": "^0.4.6",
+    "assemblyscript": "^0.20.10",
+    "wasi": "^0.0.6"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./build/release.js",
+      "types": "./build/release.d.ts"
+    }
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.20.10"
+  }
+}
