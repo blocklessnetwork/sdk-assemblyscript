@@ -15,7 +15,20 @@ declare function httpReadBody(fd: ptr<handle>, buf: ptr<u8>, buf_len: u32, num: 
 declare function httpClose(fd: ptr<handle>): errno
 
 class HttpOptions {
-    
+    //http method, GET POST etc.
+    public method: string
+    //connect timeout, unit is second.
+    public connectTimeout: i32
+    //read timeout, unit is second.
+    public readTimeout: i32
+    //request Body
+    public body: string
+
+    constructor(method:string) {
+        this.method = method;
+        this.connectTimeout = 30;
+        this.readTimeout = 30;
+    }
 }
 
 function stringFromArray(data: ptr<u8>, len: i32): string {
@@ -78,10 +91,15 @@ class HttpHandle {
     }
 }
 
-function HttpOpen(url: string, opts: string):  HttpHandle|null {
+function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
     let url_utf8_buf = String.UTF8.encode(url);
     let url_utf8_len: usize = url_utf8_buf.byteLength;
-    let opts_utf8_buf = String.UTF8.encode(opts);
+    let body = opts.body;
+    let method = opts.method;
+    let c_timeout = opts.connectTimeout;
+    let r_timeout = opts.readTimeout;
+    let opts_s = `{"method":"${method}", "connectTimeout":${c_timeout}, "readTimeout":${r_timeout}, "body":"${body}"}`
+    let opts_utf8_buf = String.UTF8.encode(opts_s);
     let opts_utf8_len: usize = opts_utf8_buf.byteLength;
     let url_utf8 = changetype<usize>(url_utf8_buf);
     let opts_utf8 = changetype<usize>(opts_utf8_buf);
