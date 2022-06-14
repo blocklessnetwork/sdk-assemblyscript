@@ -1,5 +1,6 @@
 import {errno, handle, ptr, StatusCode} from "./types";
 import * as err from "./error";
+import { Console } from "as-wasi/assembly";
 
 @external("blockless_http", "http_req")
 declare function httpOpen(url: ptr<u8>, url_len: u32, opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
@@ -76,7 +77,7 @@ class HttpHandle {
                     buf[i] = load<u8>(buffer_ptr + i);
                 return num;
             } else {
-                return -1;
+                return 0;
             }
         }
         return -1;
@@ -84,12 +85,16 @@ class HttpHandle {
 
     getAllBody(): string|null {
         let rs = "";
-        let tbuf: u8[] = new Array(1024);
-        let num: i32 = this.readBody(tbuf);
-        if (num < 0)
-            return null;
-        for(let i = 0; i < num; i += 1)
-            rs += String.fromCharCode(tbuf[i]);
+        for (;;) {
+            let tbuf: u8[] = new Array(1024);
+            let num: i32 = this.readBody(tbuf);
+            if (num < 0)
+                return null;
+            else if (num == 0)
+                break;
+            for(let i = 0; i < num; i += 1)
+                rs += String.fromCharCode(tbuf[i]);
+        }
         return rs;
     }
 
