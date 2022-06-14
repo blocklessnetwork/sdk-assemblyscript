@@ -129,7 +129,7 @@ function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
     let opts_utf8 = changetype<usize>(opts_utf8_buf);
     let fd_buf = memory.data(8);
     let code_buf = memory.data(8);
-    let rs = httpOpen(url_utf8, url_utf8_len, opts_utf8, opts_utf8_len, fd_buf, code_buf);
+    let rs = httpOpen(url_utf8, url_utf8_len as u32, opts_utf8, opts_utf8_len as u32, fd_buf, code_buf);
     if (rs != 0) {
         return null;
     }

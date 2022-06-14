@@ -8,7 +8,8 @@ let handle = http.HttpOpen("https://demo.bls.dev/tokens", new http.HttpOptions("
 
 Console.log(`code:${handle!}`)
 Console.log(handle!.getHeader("Content-Type")!);
-let jsonObj = <json.JSON.Obj>json.JSON.parse(handle!.getAllBody()!);
+let body  = handle!.getAllBody()!
+let jsonObj = <json.JSON.Obj>json.JSON.parse(body);
 let arr = jsonObj.getArr("tokens");
 if (arr != null) {
     let vals = arr!.valueOf();
@@ -16,3 +17,4 @@ if (arr != null) {
         Console.log(v.toString());
     })
 }
+handle!.close();
