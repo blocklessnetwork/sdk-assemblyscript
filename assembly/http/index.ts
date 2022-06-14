@@ -139,5 +139,6 @@ function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
 }
 
 export {
-    HttpOpen
+    HttpOpen,
+    HttpHandle
 }
