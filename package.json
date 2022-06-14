@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "build:debug": "asc assembly/index.ts --target debug",
-    "build:release": "asc assembly/index.ts --target release",
+    "build:debug": "asc index.ts --target debug",
+    "build:release": "asc index.ts --target release",
     "clean": "rm -rf build/*"
   },
   "dependencies": {

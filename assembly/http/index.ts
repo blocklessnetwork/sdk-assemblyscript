@@ -1,6 +1,6 @@
 import {errno, handle, ptr, StatusCode} from "./types";
 import * as err from "./error";
-import { Console } from "as-wasi/assembly";
+import { JSONEncoder } from "../json";
 
 @external("blockless_http", "http_req")
 declare function httpOpen(url: ptr<u8>, url_len: u32, opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
@@ -115,12 +115,15 @@ function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
     let c_timeout = opts.connectTimeout;
     let r_timeout = opts.readTimeout;
     let opts_s = "";
-    if (body != null) {
-        opts_s = `{"method":"${method}", "connectTimeout":${c_timeout}, "readTimeout":${r_timeout}, "body":"${body}"}`
-    } else {
-        opts_s = `{"method":"${method}", "connectTimeout":${c_timeout}, "readTimeout":${r_timeout}}`
-    }
-    let opts_utf8_buf = String.UTF8.encode(opts_s);
+    let encoder = new JSONEncoder();
+    encoder.pushObject("");
+    if (body != null)
+        encoder.setString("body", body);
+    encoder.setInteger("connectTimeout", c_timeout);
+    encoder.setInteger("readTimeout", r_timeout);
+    encoder.setString("method", method);
+    encoder.popObject();
+    let opts_utf8_buf = String.UTF8.encode(encoder.toString());
     let opts_utf8_len: usize = opts_utf8_buf.byteLength;
     let url_utf8 = changetype<usize>(url_utf8_buf);
     let opts_utf8 = changetype<usize>(opts_utf8_buf);
