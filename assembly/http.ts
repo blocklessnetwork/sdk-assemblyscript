@@ -4,7 +4,6 @@ import * as err from "./error";
 @external("blockless_http", "http_req")
 declare function httpOpen(url: ptr<u8>, url_len: u32, opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
 
-
 @external("blockless_http", "http_read_header")
 declare function httpReadHeader(fd: ptr<handle>, header: ptr<u8>, header_len: u32, buf: ptr<u8>, buf_len: u32, num: ptr<u32>): errno
 
@@ -14,20 +13,21 @@ declare function httpReadBody(fd: ptr<handle>, buf: ptr<u8>, buf_len: u32, num: 
 @external("blockless_http", "http_close")
 declare function httpClose(fd: ptr<handle>): errno
 
-class HttpOptions {
+export class HttpOptions {
     //http method, GET POST etc.
-    public method: string
+    public method: string;
     //connect timeout, unit is second.
-    public connectTimeout: i32
+    public connectTimeout: i32;
     //read timeout, unit is second.
-    public readTimeout: i32
+    public readTimeout: i32;
     //request Body
-    public body: string
+    public body: string|null;
 
     constructor(method:string) {
         this.method = method;
         this.connectTimeout = 30;
         this.readTimeout = 30;
+        this.body = null;
     }
 }
 
@@ -65,7 +65,7 @@ class HttpHandle {
         return null;
     }
 
-    readBody(buf: u8[]): u32|null {
+    readBody(buf: u8[]): i32 {
         let num_buf = memory.data(8);
         let buffer_ptr = changetype<usize>(new ArrayBuffer(buf.length));
         let rs = httpReadBody(this.inner, buffer_ptr, buf.length, num_buf);
@@ -76,10 +76,21 @@ class HttpHandle {
                     buf[i] = load<u8>(buffer_ptr + i);
                 return num;
             } else {
-                return null;
+                return -1;
             }
         }
-        return null;
+        return -1;
+    }
+
+    getAllBody(): string|null {
+        let rs = "";
+        let tbuf: u8[] = new Array(1024);
+        let num: i32 = this.readBody(tbuf);
+        if (num < 0)
+            return null;
+        for(let i = 0; i < num; i += 1)
+            rs += String.fromCharCode(tbuf[i]);
+        return rs;
     }
 
     close():void {
@@ -98,7 +109,12 @@ function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
     let method = opts.method;
     let c_timeout = opts.connectTimeout;
     let r_timeout = opts.readTimeout;
-    let opts_s = `{"method":"${method}", "connectTimeout":${c_timeout}, "readTimeout":${r_timeout}, "body":"${body}"}`
+    let opts_s = "";
+    if (body != null) {
+        opts_s = `{"method":"${method}", "connectTimeout":${c_timeout}, "readTimeout":${r_timeout}, "body":"${body}"}`
+    } else {
+        opts_s = `{"method":"${method}", "connectTimeout":${c_timeout}, "readTimeout":${r_timeout}}`
+    }
     let opts_utf8_buf = String.UTF8.encode(opts_s);
     let opts_utf8_len: usize = opts_utf8_buf.byteLength;
     let url_utf8 = changetype<usize>(url_utf8_buf);
