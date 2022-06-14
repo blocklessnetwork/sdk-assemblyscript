@@ -4,7 +4,7 @@
 
 This is blockless sandbox assembly-script sdk, we can use it develop the app with the typescript.
 
-The sdk is work with assembly-script, built-in json tools and http tools.
+The sdk is work with assembly-script, the built-in support json , http  and others.
 
 The example for http request run in blockless sandbox.
 
