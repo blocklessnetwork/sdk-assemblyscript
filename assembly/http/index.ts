@@ -1,5 +1,5 @@
-import {errno, handle, ptr, StatusCode} from "./types";
-import * as err from "./error";
+import {errno, handle, ptr, StatusCode} from "../types";
+import * as err from "../error";
 import { JSONEncoder } from "../json";
 
 @external("blockless_http", "http_req")
