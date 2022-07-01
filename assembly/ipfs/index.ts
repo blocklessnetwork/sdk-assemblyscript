@@ -1,9 +1,7 @@
 import {errno, handle, ptr, StatusCode} from "../types";
 import {SUCCESS} from "../error";
 import {JSONEncoder} from "../json";
-import { Console } from "as-wasi/assembly";
 import { json } from "..";
-import { Integer } from "../json/JSON";
 
 @external("blockless_ipfs", "ipfs_command")
 declare function ipfs_command(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
@@ -12,11 +10,21 @@ declare function ipfs_command(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, cod
 declare function ipfs_read_body(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
 
 
+class Args {
+    name: string
+    value: string
+    constructor(name:string, value:string) {
+        this.name = name;
+        this.value = value;
+    }
+}
 class IpfsOptions {
     api: string
+    args: Array<Args>
 
     constructor(api: string) {
         this.api = api
+        this.args = new Array()
     }
 
     toJson(): string {
@@ -86,15 +94,16 @@ class File {
         this.type = 0;
         this.size = 0
         this.hash = "";
-
     }
     toString(): string {
         return `name:${this.name}, size:${this.size}, type:${this.type}, hash:${this.hash}`
     }
 }
 
-export function ipfsFileList(): Array<File>|null {
+export function ipfsFileList(path: string|null): Array<File>|null {
     let opts = new IpfsOptions("files/ls");
+    if (path != null)
+        opts.args.push(new Args("args", path));
     let bs = ipfsCommand(opts);
     if (bs == null) return null; 
     let rs = String.UTF8.decodeUnsafe(bs.dataStart, bs.length);
