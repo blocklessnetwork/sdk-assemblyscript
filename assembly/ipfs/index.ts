@@ -144,6 +144,20 @@ export function ipfsFileRemove(path: string, recursive: boolean, force: boolean)
         return true;
 }
 
+export function ipfsFileCopy(source: string, dest: string, parents: boolean): boolean {
+    let opts = new IpfsOptions("files/cp");
+    opts.args.push(new Args("arg", source));
+    opts.args.push(new Args("arg", dest));
+    opts.args.push(new Args("parents", `${parents}`));
+    let result = ipfsCommand(opts);
+    if (result == null)
+        return false;
+    if (result.statusCode != 200)
+        return false;
+    else
+        return true;
+}
+
 export function ipfsFileList(path: string|null): Array<File>|null {
     let opts = new IpfsOptions("files/ls");
     if (path != null)
