@@ -2,6 +2,7 @@ import {errno, handle, ptr, StatusCode} from "../types";
 import {SUCCESS} from "../error";
 import {JSONEncoder} from "../json";
 import { json } from "..";
+import { Console } from "as-wasi/assembly";
 
 @external("blockless_ipfs", "ipfs_command")
 declare function ipfs_command(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
@@ -9,7 +10,14 @@ declare function ipfs_command(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, cod
 @external("blockless_ipfs", "ipfs_read_body")
 declare function ipfs_read_body(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
 
-
+class CommanResult {
+    statusCode: u32
+    respBody: Array<u8>|null
+    constructor(statusCode: u32, respBody: Array<u8>|null) {
+        this.statusCode = statusCode;
+        this.respBody = respBody;
+    }
+}
 class Args {
     name: string
     value: string
@@ -18,6 +26,7 @@ class Args {
         this.value = value;
     }
 }
+
 class IpfsOptions {
     api: string
     args: Array<Args>
@@ -31,26 +40,33 @@ class IpfsOptions {
         let encoder = new JSONEncoder();
         encoder.pushObject("");
         encoder.setString("api", this.api)
+        encoder.pushArray("args");
+        for (let i = 0; i < this.args.length; i++) {
+            let arg = this.args[i];
+            encoder.pushObject("");
+            encoder.setString("name", arg.name);
+            encoder.setString("value", arg.value);
+            encoder.popObject();
+        }
+        encoder.popArray();
         encoder.popObject();
         return encoder.toString();
     }
 }
 
-function ipfsCommand(opts: IpfsOptions):  u8[]|null {
+function ipfsCommand(opts: IpfsOptions):  CommanResult|null {
     let tbuf: u8[] = new Array(1024);
     let opts_utf8_buf = String.UTF8.encode(opts.toJson());
     let opts_utf8_len = opts_utf8_buf.byteLength;
     let opts_ptr = changetype<usize>(opts_utf8_buf);
     let num_buf = memory.data(8);
     let handle_buf = memory.data(8);
-    
     let rs = ipfs_command(opts_ptr, opts_utf8_len, handle_buf, num_buf);
     let handle = load<u32>(handle_buf);
     let num = load<u32>(num_buf);
     if (rs != SUCCESS) 
         return null;
-    if (num != 200) return null;
-    return getAllBody(handle);
+    return new CommanResult(num, getAllBody(handle))
 }
 
 function readBody(h:handle, buf: u8[]): i32 {
@@ -100,11 +116,44 @@ class File {
     }
 }
 
+export function ipfsCreateDir(path: string, parents: boolean): boolean {
+    let opts = new IpfsOptions("files/mkdir");
+    opts.args.push(new Args("arg", path));
+    opts.args.push(new Args("parents", `${parents}`));
+    let result = ipfsCommand(opts);
+    if (result == null)
+        return false;
+    if (result.statusCode != 200)
+        return false;
+    else
+        return true;
+}
+
+
+export function ipfsFileRemove(path: string, recursive: boolean, force: boolean): boolean {
+    let opts = new IpfsOptions("files/rm");
+    opts.args.push(new Args("arg", path));
+    opts.args.push(new Args("recursive", `${recursive}`));
+    opts.args.push(new Args("force", `${force}`));
+    let result = ipfsCommand(opts);
+    if (result == null)
+        return false;
+    if (result.statusCode != 200)
+        return false;
+    else
+        return true;
+}
+
 export function ipfsFileList(path: string|null): Array<File>|null {
     let opts = new IpfsOptions("files/ls");
     if (path != null)
         opts.args.push(new Args("args", path));
-    let bs = ipfsCommand(opts);
+    let result = ipfsCommand(opts);
+    if (result == null) 
+        return null;
+    if (result.statusCode != 200)
+        return null;
+    let bs = result.respBody;
     if (bs == null) return null; 
     let rs = String.UTF8.decodeUnsafe(bs.dataStart, bs.length);
     let jsonObj = <json.JSON.Obj>json.JSON.parse(rs);
