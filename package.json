@@ -1,6 +1,6 @@
 {
   "name": "@blockless/sdk",
-  "version": "1.0.0-preview",
+  "version": "1.0.1",
   "main": "assembly/index.ts",
   "scripts": {
     "build:example:debug": "asc examples/index.ts --target debug",
