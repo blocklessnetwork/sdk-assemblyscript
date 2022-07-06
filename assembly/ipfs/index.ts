@@ -158,6 +158,20 @@ export function ipfsFileCopy(source: string, dest: string, parents: boolean): bo
         return true;
 }
 
+export function ipfsFileWrite(file: string, offset: i64 = 0, create: boolean = true, parents: boolean = true, truncate: boolean = false): boolean {
+    let opts = new IpfsOptions("files/write");
+    opts.args.push(new Args("arg", file));
+    opts.args.push(new Args("offset", `${offset}`));
+    opts.args.push(new Args("create", `${create}`));
+    opts.args.push(new Args("parents", `${parents}`));
+    opts.args.push(new Args("truncate", `${truncate}`));
+    let result = ipfsCommand(opts);
+    if (result == null) {
+        return false;
+    }
+    return true;
+}
+
 export function ipfsFileList(path: string|null): Array<File>|null {
     let opts = new IpfsOptions("files/ls");
     if (path != null)
