@@ -1,48 +1,65 @@
-# Blockless-sdk-assembly-script
+# blockless-sdk-assembly-script
 
 ![](blockless.png)
 
-This is blockless sandbox assembly-script sdk, we can use it develop the app with the typescript.
+** This sdk is configured to work with `assembly-script`. **
 
-The sdk is work with assembly-script, the built-in support json , http  and others.
+## It currently has built in support for
 
-The example for http request run in blockless sandbox.
+- json
+- http
+- ipfs
+
+## Install this SDK
+
+This module can be installed into any existing project. New projects should use `@blockless/app` to start a fresh `WASM` module.
+
+```bash
+$ yarn add @blockless/sdk
+# or using npm
+$ npm i @blockless/sdk
+```
+
+## Example of using this SDK.
 
 ```ts
 // The entry file of your WebAssembly.
-import "wasi"
+import "wasi";
 
-import {Console} from "as-wasi/assembly"
-import {json, http} from "./assembly"
+import { Console } from "as-wasi/assembly";
+import { json, http } from "@blockless/sdk";
 
-let handle: http.HttpHandle | null = http.HttpOpen("https://demo.bls.dev/tokens", new http.HttpOptions("GET"));
+let handle: http.HttpHandle | null = http.HttpOpen(
+  "https://demo.bls.dev/tokens",
+  new http.HttpOptions("GET")
+);
 
 if (handle != null) {
-    Console.log(`code:${handle!}`)
-    Console.log(handle!.getHeader("Content-Type")!);
-    let body  = handle!.getAllBody()!
-    let jsonObj = <json.JSON.Obj>json.JSON.parse(body);
-    let arr = jsonObj.getArr("tokens");
-    if (arr != null) {
-        let vals = arr.valueOf();
-        vals.forEach((v) => {
-            Console.log(v.toString());
-        })
-    }
-    handle!.close();
+  Console.log(`code:${handle!}`);
+  Console.log(handle!.getHeader("Content-Type")!);
+  let body = handle!.getAllBody()!;
+  let jsonObj = <json.JSON.Obj>json.JSON.parse(body);
+  let arr = jsonObj.getArr("tokens");
+  if (arr != null) {
+    let vals = arr.valueOf();
+    vals.forEach((v) => {
+      Console.log(v.toString());
+    });
+  }
+  handle!.close();
 }
 ```
 
-### How to compile
+### How to build
 
-1. npm install the node modules dependencies.
+Use `asc` to build the `typescript` source into a deployable `WASM` file.
 
 ```bash
-$ npm install
+$ asc examples/index.ts --target release
 ```
 
-2. run the compile command.
+Shortcuts for a few examples are available in the `package.json` of this module.
 
 ```bash
-$ npm run build:release
+$ yarn build:example:debug
 ```

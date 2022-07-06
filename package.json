@@ -1,8 +1,11 @@
 {
+  "name": "@blockless/sdk",
+  "version": "1.0.0-preview",
+  "main": "assembly/index.ts",
   "scripts": {
-    "build:debug": "asc index.ts --target debug",
-    "build:release": "asc index.ts --target release",
-    "clean": "rm -rf build/*"
+    "build:example:debug": "asc examples/index.ts --target debug",
+    "build:example:release": "asc examples/index.ts --target release",
+    "clean": "rm -rf build/"
   },
   "dependencies": {
     "as-wasi": "^0.4.6",
@@ -10,13 +13,5 @@
     "wasi": "^0.0.6"
   },
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./build/release.js",
-      "types": "./build/release.d.ts"
-    }
-  },
-  "devDependencies": {
-    "assemblyscript": "^0.20.10"
-  }
+  "license": "APACHE-2.0"
 }
