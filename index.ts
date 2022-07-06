@@ -13,7 +13,7 @@ Console.log(`remove2 ${is_rm}`)
 let is_create = ipfs.ipfsCreateDir("/1", true);
 Console.log(`create dir "/1" ${is_create}`)
 
-let is_write = ipfs.ipfsFileWrite("/1.txt");
+let is_write = ipfs.ipfsFileWrite("/2.txt");
 Console.log(`write file "/1" ${is_write}`)
 
 if (files != null)
