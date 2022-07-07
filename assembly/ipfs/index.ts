@@ -7,7 +7,7 @@ import { Console } from "as-wasi/assembly";
 @external("blockless_ipfs", "ipfs_command")
 declare function ipfs_command(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
 
-@external("blockless_ipfs", "ipfs_read_body")
+@external("blockless_ipfs", "ipfs_read")
 declare function ipfs_read_body(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
 
 @external("blockless_ipfs", "ipfs_write")
