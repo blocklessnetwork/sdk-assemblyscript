@@ -18,7 +18,19 @@ Console.log(`crate dir "/1" ${is_create}`);
 
 if (files != null) Console.log(`${files!}`);
 
-let wopts = new FileWriteOptions("/2.txt");
+let filename = "/2.txt";
+let wopts = new FileWriteOptions(filename);
 let is_write = ipfs.ipfsFileWrite(wopts, [65,66, 67, 68, 69, 70]);
-Console.log(`write file "/1" ${is_write}`)
+Console.log(`write file "${filename}" ${is_write}`)
+
+let buf = new Array<u8>(1024);
+let readn = ipfs.ipfsFileRead(filename, 0, buf);
+let read_string = String.UTF8.decodeUnsafe(buf.dataStart, readn);
+Console.log(`read n: "${readn}" value: "${read_string}"`)
+
+let fstat = ipfs.ipfsFileStat(filename);
+if (fstat != null)
+    Console.log(`filestat file "${filename}" ${fstat!.toString()}`)
+
+
 

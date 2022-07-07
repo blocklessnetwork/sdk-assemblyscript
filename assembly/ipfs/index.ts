@@ -216,6 +216,30 @@ export class FileWriteOptions {
     }
 }
 
+export class ReadResult {
+    num: i64
+    constructor(num: i64) {
+        this.num = num;
+    }
+    toString(): string {
+        return `num:${this.num}`
+    }
+}
+
+export function ipfsFileRead(path:string, offset: u64, buf: Array<u8>): i32 {
+    let opts = new IpfsOptions("files/read");
+    opts.args.push(new Args("arg", path));
+    opts.args.push(new Args("offset", `${offset}`));
+    opts.args.push(new Args("count", `${buf.length}`));
+    let rs = ipfsCommand(opts);
+    if (rs == null) {
+        return -1;
+    }
+    let rnum = readBody(rs.handle, buf);
+    ipfs_close(rs.handle);
+    return rnum;
+}
+
 export function ipfsFileWrite(wopts: FileWriteOptions, buf: Array<u8>): boolean {
     let opts = new IpfsOptions("files/write");
     let file: string = wopts.file;
@@ -277,4 +301,47 @@ export function ipfsFileList(path: string|null): Array<File>|null {
         }
     }
     return files;
+}
+
+export class FileStat {
+    hash: string;
+    size: u64;
+    blocks: u64;
+    type: string;
+    cumulativeSize: u64;
+    constructor() {
+        this.hash = "";
+        this.size = 0;
+        this.blocks = 0;
+        this.type = "";
+        this.cumulativeSize = 0;
+    }
+    toString(): string {
+        return `hash:${this.hash}, size:${this.size}, blocks:${this.blocks}, type:${this.type}, cumulativeSize:${this.cumulativeSize}`
+    }
+}
+
+
+export function ipfsFileStat(path: string): FileStat|null {
+    let opts = new IpfsOptions("files/stat");
+    opts.args.push(new Args("arg", path));
+    let result = ipfsCommandResult(opts);
+    if (result == null) 
+        return null;
+    if (result.statusCode != 200)
+        return null;
+    let bs = result.respBody;
+    if (bs == null) return null; 
+    let rs = String.UTF8.decodeUnsafe(bs.dataStart, bs.length);
+    
+    let jsonObj = <json.JSON.Obj>json.JSON.parse(rs);;
+    if (jsonObj.isNull) return null;
+    if (jsonObj.getString("Hash") == null) return null;
+    let s = new FileStat();
+    s.hash = jsonObj.getString("Hash")!.stringify();
+    s.type = jsonObj.getString("Type")!.stringify();
+    s.size = jsonObj.getInteger("Size")!.valueOf();
+    s.blocks = jsonObj.getInteger("Blocks")!.valueOf();
+    s.cumulativeSize = jsonObj.getInteger("CumulativeSize")!.valueOf();
+    return s;
 }
