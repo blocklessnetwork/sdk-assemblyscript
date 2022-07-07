@@ -10,11 +10,18 @@ declare function ipfs_command(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, cod
 @external("blockless_ipfs", "ipfs_read_body")
 declare function ipfs_read_body(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
 
+@external("blockless_ipfs", "ipfs_write")
+declare function ipfs_write(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
+
+@external("blockless_ipfs", "ipfs_close")
+declare function ipfs_close(h: handle): errno
+
 class CommanResult {
+    handle: handle
     statusCode: u32
     respBody: Array<u8>|null
     constructor(statusCode: u32, respBody: Array<u8>|null) {
-        this.statusCode = statusCode;
+        this.statusCode = statusCode
         this.respBody = respBody;
     }
 }
@@ -54,7 +61,24 @@ class IpfsOptions {
     }
 }
 
-function ipfsCommand(opts: IpfsOptions):  CommanResult|null {
+function ipfsCommandResult(opts: IpfsOptions):  CommanResult|null {
+    let result = ipfsCommand(opts);
+    if (result == null) return null;
+    let body = getAllBody(result.handle);
+    ipfs_close(result.handle);
+    return new CommanResult(result.code, body)
+}
+
+class CommandRs {
+    code: StatusCode
+    handle: handle
+    constructor(code: StatusCode, handle: handle) {
+        this.code = code;
+        this.handle = handle
+    }
+}
+
+function ipfsCommand(opts: IpfsOptions):  CommandRs|null {
     let tbuf: u8[] = new Array(1024);
     let opts_utf8_buf = String.UTF8.encode(opts.toJson());
     let opts_utf8_len = opts_utf8_buf.byteLength;
@@ -62,14 +86,32 @@ function ipfsCommand(opts: IpfsOptions):  CommanResult|null {
     let num_buf = memory.data(8);
     let handle_buf = memory.data(8);
     let rs = ipfs_command(opts_ptr, opts_utf8_len, handle_buf, num_buf);
-    let handle = load<u32>(handle_buf);
-    let num = load<u32>(num_buf);
     if (rs != SUCCESS) 
         return null;
-    return new CommanResult(num, getAllBody(handle))
+    let handle = load<u32>(handle_buf);
+    let num = load<u32>(num_buf);
+    return new CommandRs(num, handle);
 }
 
-function readBody(h:handle, buf: u8[]): i32 {
+class WriteRs {
+    writen: u32
+    result: u32
+    constructor(writen: u32, result: u32) {
+        this.result = result
+        this.writen = writen
+    }
+}
+
+function writeBody(h:handle, buf: Array<u8>): WriteRs | null {
+    let num_buf = memory.data(8);
+    let buffer_ptr = changetype<usize>(buf.dataStart);
+    let rs = ipfs_write(h, buffer_ptr, buf.length, num_buf);
+    if (rs != SUCCESS) return null;
+    let num = load<u32>(num_buf);
+    return new WriteRs(num, rs);
+}
+
+function readBody(h:handle, buf: Array<u8>): i32 {
     let num_buf = memory.data(8);
     let buffer_ptr = changetype<usize>(new ArrayBuffer(buf.length));
     let rs = ipfs_read_body(h, buffer_ptr, buf.length, num_buf);
@@ -120,7 +162,7 @@ export function ipfsCreateDir(path: string, parents: boolean): boolean {
     let opts = new IpfsOptions("files/mkdir");
     opts.args.push(new Args("arg", path));
     opts.args.push(new Args("parents", `${parents}`));
-    let result = ipfsCommand(opts);
+    let result = ipfsCommandResult(opts);
     if (result == null)
         return false;
     if (result.statusCode != 200)
@@ -135,7 +177,7 @@ export function ipfsFileRemove(path: string, recursive: boolean, force: boolean)
     opts.args.push(new Args("arg", path));
     opts.args.push(new Args("recursive", `${recursive}`));
     opts.args.push(new Args("force", `${force}`));
-    let result = ipfsCommand(opts);
+    let result = ipfsCommandResult(opts);
     if (result == null)
         return false;
     if (result.statusCode != 200)
@@ -149,7 +191,7 @@ export function ipfsFileCopy(source: string, dest: string, parents: boolean): bo
     opts.args.push(new Args("arg", source));
     opts.args.push(new Args("arg", dest));
     opts.args.push(new Args("parents", `${parents}`));
-    let result = ipfsCommand(opts);
+    let result = ipfsCommandResult(opts);
     if (result == null)
         return false;
     if (result.statusCode != 200)
@@ -158,25 +200,57 @@ export function ipfsFileCopy(source: string, dest: string, parents: boolean): bo
         return true;
 }
 
-export function ipfsFileWrite(file: string, offset: i64 = 0, create: boolean = true, parents: boolean = true, truncate: boolean = false): boolean {
+export class FileWriteOptions {
+    file: string;
+    offset: i64;
+    create: boolean
+    parents: boolean
+    truncate: boolean
+    constructor(file:string) {
+        this.file = file;
+        this.offset = 0;
+        this.create = true;
+        this.parents = false;
+        this.truncate = false;
+
+    }
+}
+
+export function ipfsFileWrite(wopts: FileWriteOptions, buf: Array<u8>): boolean {
     let opts = new IpfsOptions("files/write");
+    let file: string = wopts.file;
+    let offset: i64 = wopts.offset; 
+    let create: boolean = wopts.create; 
+    let parents: boolean = wopts.parents;
+    let truncate: boolean = wopts.truncate; 
     opts.args.push(new Args("arg", file));
     opts.args.push(new Args("offset", `${offset}`));
     opts.args.push(new Args("create", `${create}`));
     opts.args.push(new Args("parents", `${parents}`));
     opts.args.push(new Args("truncate", `${truncate}`));
-    let result = ipfsCommand(opts);
-    if (result == null) {
+    let rs = ipfsCommand(opts);
+    if (rs == null) {
         return false;
     }
-    return true;
+    let wn = writeBody(rs.handle, buf);
+    if (wn == null) {
+        ipfs_close(rs.handle);
+        return false;
+    }
+    let rbuf = getAllBody(rs.handle);
+    ipfs_close(rs.handle);
+    if (rbuf != null) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 export function ipfsFileList(path: string|null): Array<File>|null {
     let opts = new IpfsOptions("files/ls");
     if (path != null)
         opts.args.push(new Args("args", path));
-    let result = ipfsCommand(opts);
+    let result = ipfsCommandResult(opts);
     if (result == null) 
         return null;
     if (result.statusCode != 200)
