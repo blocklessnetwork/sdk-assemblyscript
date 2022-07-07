@@ -8,7 +8,7 @@ import { Console } from "as-wasi/assembly";
 declare function ipfs_command(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
 
 @external("blockless_ipfs", "ipfs_read")
-declare function ipfs_read_body(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
+declare function ipfs_read(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
 
 @external("blockless_ipfs", "ipfs_write")
 declare function ipfs_write(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
@@ -17,7 +17,6 @@ declare function ipfs_write(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): 
 declare function ipfs_close(h: handle): errno
 
 class CommanResult {
-    handle: handle
     statusCode: u32
     respBody: Array<u8>|null
     constructor(statusCode: u32, respBody: Array<u8>|null) {
@@ -114,7 +113,7 @@ function writeBody(h:handle, buf: Array<u8>): WriteRs | null {
 function readBody(h:handle, buf: Array<u8>): i32 {
     let num_buf = memory.data(8);
     let buffer_ptr = changetype<usize>(new ArrayBuffer(buf.length));
-    let rs = ipfs_read_body(h, buffer_ptr, buf.length, num_buf);
+    let rs = ipfs_read(h, buffer_ptr, buf.length, num_buf);
     let num = load<u32>(num_buf);
     if (rs == SUCCESS) {
         if (num != 0) {
