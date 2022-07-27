@@ -4,8 +4,8 @@ import { JSONEncoder } from "../json";
 import { json } from "..";
 import { Console } from "as-wasi/assembly";
 
-@external("blockless_s3", "bucket_list")
-declare function bucket_list(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>): errno
+@external("blockless_s3", "bucket_command")
+declare function bucket_command(cmd: u16, opts: ptr<u8>, opts_len: u32, fd: ptr<handle>): errno
 
 @external("blockless_s3", "s3_read")
 declare function s3_read(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
@@ -160,7 +160,7 @@ export class Bucket {
         let cmd_utf8_len = cmd_utf8_buf.byteLength;
         let cmd_ptr = changetype<usize>(cmd_utf8_buf);
         let handle_buf = memory.data(8);
-        let rs = bucket_list(cmd_ptr, cmd_utf8_len, handle_buf);
+        let rs = bucket_command(2, cmd_ptr, cmd_utf8_len, handle_buf);
         if (rs != SUCCESS) {
             return null;
         }
@@ -236,5 +236,6 @@ export class Bucket {
             return false;
         return true;
     }
+
 }
 
