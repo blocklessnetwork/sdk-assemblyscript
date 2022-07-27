@@ -10,6 +10,9 @@ declare function bucket_list(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>): err
 @external("blockless_s3", "s3_read")
 declare function s3_read(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
 
+@external("blockless_s3", "bucket_put_object")
+declare function bucket_put_object(opts: ptr<u8>, opts_len: u32, buf: ptr<u32>, len: u32): errno
+
 @external("blockless_s3", "s3_close")
 declare function s3_close(h: handle): errno
 
@@ -202,4 +205,29 @@ export function S3BucketList(bucketName: string, prefix: string, cfg: S3Configur
         }
     }
     return result;
+}
+export class PutCommand {
+    bucketName: string
+    path: string
+    content: Array<u8>
+    constructor(bucketName: string, path: string, content: Array<u8>) {
+        this.bucketName = bucketName
+        this.path = path
+        this.content = content
+    }
+}
+export function S3BucketPutObject(putcmd :PutCommand, cfg: S3Configure): bool {
+    let cmd = new BucketCommand(cfg);
+    cmd.addArg("bucket_name", putcmd.bucketName);
+    cmd.addArg("path", putcmd.path);
+    let buf = putcmd.content;
+    let command = cmd.toJson();
+    let cmd_utf8_buf = String.UTF8.encode(command);
+    let cmd_utf8_len = cmd_utf8_buf.byteLength;
+    let cmd_ptr = changetype<usize>(cmd_utf8_buf);
+    let buffer_ptr = changetype<usize>(buf.dataStart);
+    let rs = bucket_put_object(cmd_ptr, cmd_utf8_len, buffer_ptr, buf.length);
+    if (rs != SUCCESS)
+        return false;
+    return true;
 }
