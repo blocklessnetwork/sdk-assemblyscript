@@ -2,7 +2,6 @@ import {errno, handle, ptr, StatusCode} from "../types";
 import {SUCCESS} from "../error";
 import {JSONEncoder} from "../json";
 import { json } from "..";
-import { Console } from "as-wasi/assembly";
 
 @external("blockless_ipfs", "ipfs_command")
 declare function ipfs_command(opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
@@ -319,7 +318,6 @@ export class FileStat {
         return `hash:${this.hash}, size:${this.size}, blocks:${this.blocks}, type:${this.type}, cumulativeSize:${this.cumulativeSize}`
     }
 }
-
 
 export function ipfsFileStat(path: string): FileStat|null {
     let opts = new IpfsOptions("files/stat");
