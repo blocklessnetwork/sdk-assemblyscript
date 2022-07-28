@@ -216,6 +216,24 @@ export class Bucket {
         return result;
     }
 
+    getObject(path: string): Array<u8>|null {
+        let cmd = this.getBucketCommand();
+        cmd.addArg("path", path);
+        let command = cmd.toJson();
+        let cmd_utf8_buf = String.UTF8.encode(command);
+        let cmd_utf8_len = cmd_utf8_buf.byteLength;
+        let cmd_ptr = changetype<usize>(cmd_utf8_buf);
+        let handle_buf = memory.data(8);
+        let rs = bucket_command(3, cmd_ptr, cmd_utf8_len, handle_buf);
+        if (rs != SUCCESS) {
+            return null;
+        }
+        let handle = load<u32>(handle_buf);
+        let bs = getAllBody(handle);
+        s3_close(handle);
+        return bs;
+    }
+
     getBucketCommand(): BucketCommand {
         let cmd = new BucketCommand(this.s3config);
         cmd.addArg("bucket_name", this.bucketName);
