@@ -255,5 +255,22 @@ export class Bucket {
         return true;
     }
 
+    deleteObject(path: string): bool {
+        let cmd = this.getBucketCommand();
+        cmd.addArg("path", path);
+        let command = cmd.toJson();
+        let cmd_utf8_buf = String.UTF8.encode(command);
+        let cmd_utf8_len = cmd_utf8_buf.byteLength;
+        let cmd_ptr = changetype<usize>(cmd_utf8_buf);
+        let handle_buf = memory.data(8);
+        let rs = bucket_command(4, cmd_ptr, cmd_utf8_len, handle_buf);
+        if (rs != SUCCESS) {
+            return false;
+        }
+        let handle = load<u32>(handle_buf);
+        s3_close(handle);
+        return true;
+    }
+
 }
 
