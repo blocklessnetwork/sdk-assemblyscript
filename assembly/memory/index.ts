@@ -3,12 +3,12 @@ import {SUCCESS} from "../error";
 import { JSON } from "../json";
 
 @external("blockless_memory", "memory_read")
-declare function memory_read(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
+declare function memory_read(buf: ptr<u32>, len: u32, num: ptr<u32>): errno
 
-function readBody(h:handle, buf: Array<u8>): i32 {
+function readBody(buf: Array<u8>): i32 {
     let num_buf = memory.data(8);
     let buffer_ptr = changetype<usize>(new ArrayBuffer(buf.length));
-    let rs = memory_read(h, buffer_ptr, buf.length, num_buf);
+    let rs = memory_read(buffer_ptr, buf.length, num_buf);
     let num = load<u32>(num_buf);
     if (rs == SUCCESS) {
         if (num != 0) {
@@ -31,9 +31,7 @@ export class Stdin {
 
     read(): Stdin {
         let tbuf: u8[] = new Array(1024);
-        let handle_buf = memory.data(8);
-        let handle = load<u32>(handle_buf);
-        let bs = readBody(handle, tbuf);
+        let bs = readBody(tbuf);
         this.buf = tbuf;
         return this;
     }
