@@ -10,3 +10,11 @@ if (stdin) {
     Console.log("Hello " + newValue.toString());
   }
 }
+
+let envVars = new memory.EnvVars().read().toJSON();
+if (envVars) {
+  let environmentValue = envVars.get("ENV_VAR_NAME");
+  if (environmentValue) {
+    Console.log("Hello " + environmentValue.toString());
+  }
+}
