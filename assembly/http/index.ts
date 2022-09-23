@@ -1,6 +1,10 @@
 import {errno, handle, ptr, StatusCode} from "../types";
 import * as err from "../error";
 import { JSONEncoder } from "../json";
+import { EnvVars } from "../memory";
+import { Console } from "as-wasi/assembly";
+import { encode } from "../base64";
+import { Buffer } from "../json/util";
 
 @external("blockless_http", "http_req")
 declare function httpOpen(url: ptr<u8>, url_len: u32, opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
@@ -32,6 +36,56 @@ export class HttpOptions {
     }
 }
 
+export class Header {
+    public name: string;
+    public value: string;
+}
+
+export class Request {
+    public url: string;
+    public opts: HttpOptions | null;
+    public headers: Array<Header> | null;
+
+    constructor(url: string, opts: HttpOptions) {
+        this.url = url;
+        this.opts = opts;
+        this.headers = new Array<Header>();
+    }
+}
+
+export class Response {
+    public code: u32;
+    public headers: Array<Header> | null;
+    public body: string;
+
+    constructor(code: u32, headers: Array<Header>, body: string = "") {
+        this.code = code;
+        this.headers = headers;
+        this.body = body;
+    }
+}
+
+export class Handler {
+    public handler: (request: Request) => Response;
+    constructor(handler: (request: Request) => Response) {
+        this.handler = handler;
+        let envVars = new EnvVars().read().toJSON();
+        if (envVars) {
+            let requestPath = envVars.get("BLS_REQUEST_PATH");
+            if (requestPath) {
+                const request = new Request(requestPath.toString(), new HttpOptions("GET"));
+                const response = this.handler(request);
+                const body = Buffer.fromString(response.body);
+                if (response && response.body) {
+                    Console.log(`{"code": ${response.code.toString()}, "headers": [], "body": "${ encode(body) }"}`);
+                }
+            }
+        }
+       
+    }
+}
+
+// legacy code
 function stringFromArray(data: ptr<u8>, len: i32): string {
     let str = "";
     for(let i = 0; i < len; i += 1)
@@ -39,7 +93,7 @@ function stringFromArray(data: ptr<u8>, len: i32): string {
     return str;
 }
 
-class HttpHandle {
+export class HttpHandle {
     private inner: handle
     private code: StatusCode
     constructor(inner: handle, code: StatusCode) {
@@ -107,7 +161,7 @@ class HttpHandle {
     }
 }
 
-function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
+export function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
     let url_utf8_buf = String.UTF8.encode(url);
     let url_utf8_len: usize = url_utf8_buf.byteLength;
     let body = opts.body;
@@ -136,9 +190,4 @@ function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
     let fd = load<u32>(fd_buf);
     let code = load<u32>(code_buf);
     return new HttpHandle(fd, code);
-}
-
-export {
-    HttpOpen,
-    HttpHandle
 }
