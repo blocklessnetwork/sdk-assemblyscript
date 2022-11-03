@@ -23,12 +23,15 @@ export class HttpOptions {
     public readTimeout: i32;
     //request Body
     public body: string|null;
+    //request headers
+    public headers: string|null;
 
     constructor(method:string) {
         this.method = method;
         this.connectTimeout = 30;
         this.readTimeout = 30;
         this.body = null;
+        this.headers = null;
     }
 }
 
@@ -111,6 +114,7 @@ function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
     let url_utf8_buf = String.UTF8.encode(url);
     let url_utf8_len: usize = url_utf8_buf.byteLength;
     let body = opts.body;
+    let headers = opts.headers;
     let method = opts.method;
     let c_timeout = opts.connectTimeout;
     let r_timeout = opts.readTimeout;
@@ -119,6 +123,8 @@ function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
     encoder.pushObject("");
     if (body != null)
         encoder.setString("body", body);
+    if (headers != null)
+        encoder.setString("headers", headers);
     encoder.setInteger("connectTimeout", c_timeout);
     encoder.setInteger("readTimeout", r_timeout);
     encoder.setString("method", method);
