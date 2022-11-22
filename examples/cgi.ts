@@ -14,6 +14,7 @@ function test_read_stdout(): void {
         let read_string = buffer2string(buf, l);
         Console.log(read_string);
     }
+    command.close();
 }
 
 function test_read_stderr(): void {
@@ -26,6 +27,7 @@ function test_read_stderr(): void {
         let read_string = buffer2string(buf, l);
         Console.log(read_string);
     }
+    command.close();
 }
 
 //stdout test with the correct command.
