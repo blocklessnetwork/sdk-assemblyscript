@@ -65,6 +65,29 @@ export class CgiCommand {
         return encoder.toString();
     }
 
+    read(buf: Array<u8>, is_stdout: boolean): i32 {
+        let num_buf = memory.data(8);
+        let buffer_ptr = changetype<usize>(new ArrayBuffer(buf.length));
+        let rs = 0;
+        if (is_stdout) {
+            rs = cgi_stdout_read(this.handle, buffer_ptr, buf.length, num_buf);
+        } else {
+            rs = cgi_stderr_read(this.handle, buffer_ptr, buf.length, num_buf);
+        }
+        
+        let num = load<u32>(num_buf);
+        if (rs == SUCCESS) {
+            if (num != 0) {
+                for(let i = 0; i < buf.length; i += 1)
+                    buf[i] = load<u8>(buffer_ptr + i);
+                return num;
+            } else {
+                return 0;
+            }
+        }
+        return -1;
+    }
+
     exec(): boolean {
         let params = this.params2json()
         let params_utf8_buf = String.UTF8.encode(params);
@@ -77,5 +100,14 @@ export class CgiCommand {
         this.handle = load<u32>(handle_buf);
         return true;
     }
+
+    stdoutRead(buf: Array<u8>): i32 {
+        return this.read(buf, true);
+    }
+
+    stderrRead(buf: Array<u8>): i32 {
+        return this.read(buf, false);
+    }
+    
 }
 
