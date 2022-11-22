@@ -11,8 +11,11 @@ declare function cgi_stdout_read(h: handle, buf: ptr<u32>, len: u32, num: ptr<u3
 @external("blockless_cgi", "cgi_stderr_read")
 declare function cgi_stderr_read(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
 
-@external("blockless_ipfs", "cgi_stdin_write")
+@external("blockless_cgi", "cgi_stdin_write")
 declare function cgi_stdin_write(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
+
+@external("blockless_cgi", "cgi_close")
+declare function cgi_close(h: handle): errno
 
 
 export class Env {
@@ -66,6 +69,9 @@ export class CgiCommand {
     }
 
     read(buf: Array<u8>, is_stdout: boolean): i32 {
+        if (this.handle == 0) {
+            return -1;
+        }
         let num_buf = memory.data(8);
         let buffer_ptr = changetype<usize>(new ArrayBuffer(buf.length));
         let rs = 0;
@@ -90,7 +96,7 @@ export class CgiCommand {
 
     exec(): boolean {
         let params = this.params2json()
-        let params_utf8_buf = String.UTF8.encode(params);
+        let params_utf8_buf: ArrayBuffer = String.UTF8.encode(params);
         let params_utf8_len = params_utf8_buf.byteLength;
         let params_ptr = changetype<usize>(params_utf8_buf);
         let handle_buf = memory.data(8);
@@ -107,6 +113,24 @@ export class CgiCommand {
 
     stderrRead(buf: Array<u8>): i32 {
         return this.read(buf, false);
+    }
+
+    close(): void {
+        if (this.handle > 0) {
+            cgi_close(this.handle);
+            this.handle = 0;
+        }
+    }
+
+    stdinWrite(buf: Array<u8>): i32 {
+        let num_buf = memory.data(8);
+        let buf_ptr = changetype<usize>(buf.dataStart);
+        let rs = cgi_stdin_write(this.handle, buf_ptr, buf.length, num_buf);
+        if (rs != SUCCESS) {
+            return -1;
+        }
+        let num = load<u32>(num_buf);
+        return num;
     }
     
 }
