@@ -2,7 +2,7 @@ import "wasi";
 import { Console } from "as-wasi/assembly";
 import { CgiCommand, Env} from "../assembly/cgi";
 
-let command = new CgiCommand("ls", ["-l", "."] ,[]);
+let command = new CgiCommand("ls", ["-l", "."] ,[new Env("PATH", "/Users/join/Downloads/sdk-assemblyscript")]);
 let rs = command.exec();
 if (rs == true) {
     let buf = new Array<u8>(1024);
