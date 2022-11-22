@@ -28,6 +28,8 @@ function test_read_stderr(): void {
     }
 }
 
+//stdout test with the correct command.
 test_read_stdout();
 
+//stderr test with the error command.
 test_read_stderr();
