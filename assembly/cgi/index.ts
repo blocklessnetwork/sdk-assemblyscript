@@ -122,6 +122,18 @@ export class CgiCommand {
         }
     }
 
+    stdinWriteString(s: string): i32 {
+        let buf_buf = String.UTF8.encode(s);
+        let buf_utf8_len = buf_buf.byteLength;
+        let buf_ptr = changetype<usize>(buf_buf);
+        let num_buf = memory.data(8);
+        let rs = cgi_stdin_write(this.handle, buf_ptr, buf_utf8_len, num_buf);
+        if (rs != SUCCESS) {
+            return -1;
+        }
+        return load<u32>(num_buf);
+    }
+
     stdinWrite(buf: Array<u8>): i32 {
         let num_buf = memory.data(8);
         let buf_ptr = changetype<usize>(buf.dataStart);
@@ -129,8 +141,7 @@ export class CgiCommand {
         if (rs != SUCCESS) {
             return -1;
         }
-        let num = load<u32>(num_buf);
-        return num;
+        return load<u32>(num_buf);
     }
     
 }
