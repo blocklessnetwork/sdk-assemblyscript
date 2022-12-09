@@ -1,17 +1,21 @@
-import { memory } from "@blockless/sdk"
-
-export enum StdinCommand {
-    BLS_REQUEST_PATH = 1,
-    NONE = 999
-}
+import { memory } from "../index"
 
 export class HttpStdin {
-    static path: StdinCommand = StdinCommand.NONE
-    static params: Map<string, string>
+    static path: '/'
+    static query: Map<string, string> = new Map()
 
     static initalize(): void {
         const blsStdin = new memory.Stdin().read()
-        const blsStdinString = blsStdin.toString()
-        const allInput = blsStdinString.split(' ')
+        const blsStdinString = blsStdin.toString().replaceAll('\0', '').trim()
+
+        if (blsStdinString.length > 0) {
+            const allInput = blsStdinString.split('&')
+    
+            allInput.forEach(i => {
+                const pair = i.split('=')
+                HttpStdin.query.set(pair[0].trim(), pair.length > 1 ? pair[1].trim() : '')
+            })
+        }
     }
 }
+
