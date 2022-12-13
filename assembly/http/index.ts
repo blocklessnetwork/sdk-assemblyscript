@@ -120,14 +120,23 @@ class Response {
     toJSON(): JSON.Obj {
         const obj = new JSON.Obj
         obj.set('code', this.code.toString())
-        obj.set('body', encode(Buffer.fromString(this.body)))
+        obj.set('body', this.body)
         obj.set('headers', this.getHeaders())
 
         return obj
     }
 
     toString(): string {
-        return this.toJSON().toString()
+        let content = ''
+        const contentType = this.headers.has('Content-Type') ? this.headers.get('Content-Type') : 'text/plain'
+
+        if (contentType === 'text/html') {
+            content = `data:${contentType};base64,${encode(Buffer.fromString(this.body))}`
+        } else {
+            content = this.body
+        }
+
+        return content
     }
 }
 
@@ -144,7 +153,7 @@ class HttpComponent {
 
         // Encode body into buffer
         if (response && response.body) {
-            Console.log(response.toString())
+            Console.write(response.toString(), false)
         }
     }
 }
