@@ -15,7 +15,7 @@ import { buffer2string, stringFromArray } from "../strings"
 @external("blockless_http", "http_close")
   declare function httpClose(fd: ptr<handle>): errno
 
-export class HttpHandleOptions {
+export class HttpOptions {
   //http method, GET POST etc.
   public method: string
   //connect timeout, unit is second.
@@ -103,7 +103,7 @@ export class HttpHandle {
   }
 }
 
-export function HttpOpen(url: string, opts: HttpHandleOptions): HttpHandle | null {
+export function HttpOpen(url: string, opts: HttpOptions): HttpHandle | null {
   let url_utf8_buf = String.UTF8.encode(url)
   let url_utf8_len: usize = url_utf8_buf.byteLength
   let body = opts.body

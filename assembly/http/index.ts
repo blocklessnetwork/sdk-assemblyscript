@@ -2,7 +2,7 @@ import { JSON } from "../json";
 import { Buffer } from "../json/util";
 import { encode } from "../base64";
 import { Console } from "as-wasi/assembly";
-import { HttpHandle, HttpHandleOptions, HttpOpen } from "./handler";
+import { HttpHandle, HttpOptions, HttpOpen } from "./handler";
 import { HttpStdin } from "./stdin"
 
 class ClientOptions {
@@ -38,14 +38,14 @@ class Client {
     }
 
     get(url: string): JSON.Obj {
-        const options = new HttpHandleOptions('GET')
+        const options = new HttpOptions('GET')
         options.headers = this.options.getHeaders()
 
         return Client.request(this.formatUrl(url), options)
     }
 
     post(url: string, body: string): JSON.Obj {
-        const options = new HttpHandleOptions("POST")
+        const options = new HttpOptions("POST")
         options.headers = this.options.getHeaders()
 
         if (body) options.body = body
@@ -53,7 +53,7 @@ class Client {
         return Client.request(this.formatUrl(url), options)
     }
 
-    static request(url: string, options: HttpHandleOptions): JSON.Obj {
+    static request(url: string, options: HttpOptions): JSON.Obj {
         let body: string | null = null
         let response: JSON.Obj = <JSON.Obj>JSON.parse('{}')
         const handle: HttpHandle | null = HttpOpen(url, options)
@@ -160,7 +160,7 @@ class HttpComponent {
 
 export {
     HttpHandle,
-    HttpHandleOptions,
+    HttpOptions,
     HttpOpen,
     Client,
     ClientOptions,
