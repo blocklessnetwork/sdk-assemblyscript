@@ -3,6 +3,7 @@ import {errno, handle, ptr, StatusCode} from "../types";
 import {JSONEncoder} from "../json";
 import { buffer2string } from "../strings";
 import { Console } from "as-wasi/assembly";
+import { json } from "..";
 
 @external("blockless_cgi", "cgi_open")
 declare function cgi_open(opts: ptr<u8>, opts_len: u32, cgi_handle: ptr<handle>): errno
@@ -34,7 +35,19 @@ export class Env {
     }
 }
 
-export function cgiExtendsList(): string|null {
+export class CGIExtension {
+    fileName: string
+
+    constructor(fileName:string) {
+        this.fileName = fileName
+    }
+
+    toString(): string {
+        return `{fileName:${this.fileName}}`
+    }
+}
+
+export function cgiExtendsList(): Array<CGIExtension>|null {
     let handle_buf = memory.data(8);
     let rs = cgi_list_exec(handle_buf);
     if (rs != SUCCESS) {
@@ -43,7 +56,25 @@ export function cgiExtendsList(): string|null {
     let fd = load<u32>(handle_buf);
     let rlist= cgiListReadAll(fd);
     cgi_close(fd);
-    return rlist;
+    let arr = <json.JSON.Arr>json.JSON.parse(rlist);
+    let result: CGIExtension[] = new Array();
+    if (arr.isNull) return null;
+    if (arr.isArr) {
+        let vals = arr.valueOf();
+        for (let i = 0; i < vals.length; i++) {
+            let val = vals[i];
+            if (val.isObj) {
+                let obj = <json.JSON.Obj>val;
+                let fn = obj.getString("fileName");
+                if (fn != null) {
+                    let ext = new CGIExtension(fn.toString());
+                    result.push(ext);
+                }
+            }
+        }
+
+    }
+    return result;
 }
 
 function cgiListReadAll(fd: handle): string|null {
