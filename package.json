@@ -4,7 +4,7 @@
   "main": "assembly/index.ts",
   "scripts": {
     "build:example:debug": "asc examples/cgi.ts --target debug",
-    "build:example:release": "asc examples/http.ts --target release",
+    "build:example:release": "asc examples/cgi.ts --target release",
     "clean": "rm -rf build/"
   },
   "dependencies": {

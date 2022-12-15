@@ -1,8 +1,13 @@
 import "wasi";
 import { Console } from "as-wasi/assembly";
-import { CgiCommand, Env} from "../assembly/cgi";
+import { CgiCommand, Env, cgiExtendsList} from "../assembly/cgi";
 import { buffer2string, string2buffer, arrayIndex} from "../assembly/strings";
 
+function test_list_cgi(): void {
+    let l = cgiExtendsList();
+    if (l != null)
+        Console.log(`${l}`);
+}
 
 function test_read_stdout(): void {
     let command = new CgiCommand("ls", ["-l", "."], null);
@@ -122,6 +127,8 @@ function test_simple_protocol_full_stream(): void {
     }
     command.close();
 }
+
+test_list_cgi();
 
 //stdout test with the correct command.
 test_read_stdout();
