@@ -51,7 +51,7 @@ function test_read_stderr(): void {
 }
 
 function test_simple_protocol_for_req_stream(): void {
-    let command = new CgiCommand("/Users/join/Downloads/sdk-assemblyscript/examples/cgi/test_http", null, null);
+    let command = new CgiCommand("test_http", null, null);
     let rs = command.exec();
     if (rs == true) {
         let req = '{"Url":"http://www.163.com"}';
@@ -83,7 +83,7 @@ function test_simple_protocol_for_req_stream(): void {
 
 
 function test_simple_protocol_full_stream(): void {
-    let command = new CgiCommand("/Users/join/Downloads/sdk-assemblyscript/examples/cgi/test_http_with_resp_protocol", null, null);
+    let command = new CgiCommand("test_http_with_resp_protocol", null, null);
     let rs = command.exec();
     if (rs == true) {
         let req = '{"Url":"http://www.163.com"}';
