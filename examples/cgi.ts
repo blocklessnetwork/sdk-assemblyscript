@@ -71,10 +71,12 @@ function test_simple_protocol_for_req_stream(): void {
         head = `${req_len}${SEP}`;
         command.stdinWriteString(head);
         command.stdinWriteString(`${req}${SEP}`);
-        buf = new Array<u8>(1024);
+        buf = new Array<u8>(65535);
+        let all_buff: u8[] = new Array(0);
         l = command.stdoutRead(buf);
+        all_buff = all_buff.concat(buf.slice(0, l));
         Console.log(`baidu.com readbytes len:${l}`);
-        read_string = buffer2string(buf, l);
+        read_string = buffer2string(all_buff, all_buff.length);
         Console.log(read_string);
     }
     command.close();
@@ -94,6 +96,7 @@ function test_simple_protocol_full_stream(): void {
         command.stdinWriteString(`${req}${SEP}`);
         let buf = new Array<u8>(1024);
         let l = command.stdoutRead(buf);
+        Console.log(`test_simple_protocol_full_stream`);
         Console.log(`.163.com readbytes len:${l}`);
         let body_len_idx = arrayIndex(buf, [13, 10]);
         let body_len_buf = buf.slice(0, body_len_idx);
@@ -101,7 +104,7 @@ function test_simple_protocol_full_stream(): void {
         Console.log(`protocol len: ${body_len}`);
         let body = buf.slice(body_len_idx + 2, body_len + body_len_idx + 2)
         let read_string = buffer2string(body, body.length);
-        
+
 
         Console.log(read_string);
 
@@ -110,7 +113,7 @@ function test_simple_protocol_full_stream(): void {
         head = `${req_len}${SEP}`;
         command.stdinWriteString(head);
         command.stdinWriteString(`${req}${SEP}`);
-        buf = new Array<u8>(1024);
+        buf = new Array<u8>(65535);
         l = command.stdoutRead(buf);
         
         Console.log(`baidu.com readbytes len:${l}`);
@@ -119,11 +122,15 @@ function test_simple_protocol_full_stream(): void {
         body_len = parseInt(buffer2string(body_len_buf, body_len_buf.length)) as i32;
         Console.log(`protocol len: ${body_len}`);
         body = buf.slice(body_len_idx + 2, body_len + body_len_idx + 2)
-        buffer2string(body, body.length);
-        read_string = buffer2string(body, body.length);
-        
 
-        Console.log(read_string);
+        let all_buff: u8[] = body;
+
+        while  (all_buff.length < body_len && l > 0) {
+            l = command.stdoutRead(buf);
+            all_buff = all_buff.concat(buf.slice(0, l));
+        }
+
+        Console.log(`${all_buff.length}`);
     }
     command.close();
 }
