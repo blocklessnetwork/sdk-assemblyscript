@@ -126,7 +126,7 @@ function test_simple_protocol_full_stream(): void {
         body = buf.slice(body_len_idx + 2, body_len + body_len_idx + 2)
         let all_buff: u8[] = body;
         //read all data from pipe
-        while  (all_buff.length < body_len && l > 0) {
+        while  (all_buff.length < body_len ) {
             l = command.stdoutRead(buf);
             all_buff = all_buff.concat(buf.slice(0, l));
         }
