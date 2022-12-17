@@ -131,6 +131,7 @@ function test_simple_protocol_full_stream(): void {
             all_buff = all_buff.concat(buf.slice(0, l));
         }
         //can't log the result big than the max string length.
+        //the last 2 bit must be \r\n
         Console.log(`${all_buff.length}`);
     }
     command.close();
