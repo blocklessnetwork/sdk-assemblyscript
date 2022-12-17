@@ -100,6 +100,7 @@ function test_simple_protocol_full_stream(): void {
         Console.log(`.163.com readbytes len:${l}`);
         let body_len_idx = arrayIndex(buf, [13, 10]);
         let body_len_buf = buf.slice(0, body_len_idx);
+        //parse the head using the protocol, indicator the length of body.
         let body_len = parseInt(buffer2string(body_len_buf, body_len_buf.length)) as i32;
         Console.log(`protocol len: ${body_len}`);
         let body = buf.slice(body_len_idx + 2, body_len + body_len_idx + 2)
@@ -119,17 +120,17 @@ function test_simple_protocol_full_stream(): void {
         Console.log(`baidu.com readbytes len:${l}`);
         body_len_idx = arrayIndex(buf, [13, 10]);
         body_len_buf = buf.slice(0, body_len_idx);
+        //parse the head using the protocol, indicator the length of body.
         body_len = parseInt(buffer2string(body_len_buf, body_len_buf.length)) as i32;
         Console.log(`protocol len: ${body_len}`);
         body = buf.slice(body_len_idx + 2, body_len + body_len_idx + 2)
-
         let all_buff: u8[] = body;
-
+        //read all data from pipe
         while  (all_buff.length < body_len && l > 0) {
             l = command.stdoutRead(buf);
             all_buff = all_buff.concat(buf.slice(0, l));
         }
-        //can't  log the result big than the max string length.
+        //can't log the result big than the max string length.
         Console.log(`${all_buff.length}`);
     }
     command.close();
