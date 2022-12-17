@@ -129,7 +129,7 @@ function test_simple_protocol_full_stream(): void {
             l = command.stdoutRead(buf);
             all_buff = all_buff.concat(buf.slice(0, l));
         }
-
+        //can't  log the result big than the max string length.
         Console.log(`${all_buff.length}`);
     }
     command.close();
