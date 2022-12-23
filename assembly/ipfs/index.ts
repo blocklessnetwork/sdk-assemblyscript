@@ -331,7 +331,7 @@ export function ipfsFileStat(path: string): FileStat|null {
     if (bs == null) return null; 
     let rs = String.UTF8.decodeUnsafe(bs.dataStart, bs.length);
     
-    let jsonObj = <json.JSON.Obj>json.JSON.parse(rs);;
+    let jsonObj = <json.JSON.Obj>json.JSON.parse(rs);
     if (jsonObj.isNull) return null;
     if (jsonObj.getString("Hash") == null) return null;
     let s = new FileStat();

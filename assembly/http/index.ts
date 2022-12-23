@@ -2,6 +2,7 @@ import {errno, handle, ptr, StatusCode} from "../types";
 import * as err from "../error";
 import { JSONEncoder } from "../json";
 import { buffer2string } from "../strings";
+import { Console } from "as-wasi/assembly";
 
 @external("blockless_http", "http_req")
 declare function httpOpen(url: ptr<u8>, url_len: u32, opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
@@ -88,7 +89,7 @@ class HttpHandle {
     }
 
     getAllBody(): string|null {
-        let rs = "";
+        let arr_rs: u8[] = new Array(0);
         for (;;) {
             let tbuf: u8[] = new Array(1024);
             let num: i32 = this.readBody(tbuf);
@@ -96,9 +97,9 @@ class HttpHandle {
                 return null;
             else if (num == 0)
                 break;
-            rs += buffer2string(tbuf, num);
+            arr_rs = arr_rs.concat(tbuf.slice(0, num))
         }
-        return rs;
+        return buffer2string(arr_rs, arr_rs.length);
     }
 
     close():void {
@@ -135,6 +136,7 @@ function HttpOpen(url: string, opts: HttpOptions):  HttpHandle|null {
     let opts_utf8 = changetype<usize>(opts_utf8_buf);
     let fd_buf = memory.data(8);
     let code_buf = memory.data(8);
+    
     let rs = httpOpen(url_utf8, url_utf8_len as u32, opts_utf8, opts_utf8_len as u32, fd_buf, code_buf);
     if (rs != 0) {
         return null;

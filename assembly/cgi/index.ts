@@ -1,6 +1,9 @@
 import {SUCCESS} from "../error";
 import {errno, handle, ptr, StatusCode} from "../types";
 import {JSONEncoder} from "../json";
+import { buffer2string } from "../strings";
+import { Console } from "as-wasi/assembly";
+import { json } from "..";
 
 @external("blockless_cgi", "cgi_open")
 declare function cgi_open(opts: ptr<u8>, opts_len: u32, cgi_handle: ptr<handle>): errno
@@ -17,6 +20,11 @@ declare function cgi_stdin_write(h: handle, buf: ptr<u32>, len: u32, num: ptr<u3
 @external("blockless_cgi", "cgi_close")
 declare function cgi_close(h: handle): errno
 
+@external("blockless_cgi", "cgi_list_exec")
+declare function cgi_list_exec(cgi_handle: ptr<handle>): errno
+
+@external("blockless_cgi", "cgi_list_read")
+declare function cgi_list_read(h: handle, buf: ptr<u32>, len: u32, num: ptr<u32>): errno
 
 export class Env {
     name: string
@@ -25,6 +33,79 @@ export class Env {
         this.name = name;
         this.value = value;
     }
+}
+
+export class CGIExtension {
+    fileName: string
+
+    constructor(fileName:string) {
+        this.fileName = fileName
+    }
+
+    toString(): string {
+        return `{fileName:${this.fileName}}`
+    }
+}
+
+export function cgiExtendsList(): Array<CGIExtension>|null {
+    let handle_buf = memory.data(8);
+    let rs = cgi_list_exec(handle_buf);
+    if (rs != SUCCESS) {
+        return null;
+    }
+    let fd = load<u32>(handle_buf);
+    let rlist= cgiListReadAll(fd);
+    cgi_close(fd);
+    let arr = <json.JSON.Arr>json.JSON.parse(rlist);
+    let result: CGIExtension[] = new Array();
+    if (arr.isNull) return null;
+    if (arr.isArr) {
+        let vals = arr.valueOf();
+        for (let i = 0; i < vals.length; i++) {
+            let val = vals[i];
+            if (val.isObj) {
+                let obj = <json.JSON.Obj>val;
+                let fn = obj.getString("fileName");
+                if (fn != null) {
+                    let ext = new CGIExtension(fn.toString());
+                    result.push(ext);
+                }
+            }
+        }
+
+    }
+    return result;
+}
+
+function cgiListReadAll(fd: handle): string|null {
+    let arr_rs: u8[] = new Array(0);
+    for (;;) {
+        let tbuf: u8[] = new Array(1024);
+        let num: i32 = cgiListRead(fd, tbuf);
+        if (num < 0)
+            return null;
+        else if (num == 0)
+            break;
+        arr_rs = arr_rs.concat(tbuf.slice(0, num))
+    }
+    return buffer2string(arr_rs, arr_rs.length);
+}
+
+function cgiListRead(fd: handle, buf: u8[]): i32 {
+    let num_buf = memory.data(8);
+    let buffer_ptr = changetype<usize>(new ArrayBuffer(buf.length));
+    let rs = cgi_list_read(fd, buffer_ptr, buf.length, num_buf);
+    let num = load<u32>(num_buf);
+    if (rs == SUCCESS) {
+        if (num != 0) {
+            for(let i = 0; i < buf.length; i += 1)
+                buf[i] = load<u8>(buffer_ptr + i);
+            return num;
+        } else {
+            return 0;
+        }
+    }
+    return -1;
 }
 
 export class CgiCommand {
