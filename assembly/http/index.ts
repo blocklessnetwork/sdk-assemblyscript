@@ -128,13 +128,9 @@ class Response {
 
     toString(): string {
         let content = ''
-        const contentType = this.headers.has('Content-Type') ? this.headers.get('Content-Type') : 'text/plain'
 
-        if (contentType === 'text/html') {
-            content = `data:${contentType};base64,${encode(Buffer.fromString(this.body))}`
-        } else {
-            content = this.body
-        }
+        // const contentType = this.headers.has('Content-Type') ? this.headers.get('Content-Type') : 'text/plain'
+        content = this.body
 
         return content
     }
@@ -145,7 +141,7 @@ class HttpComponent {
         HttpStdin.initalize()
 
         // Build request
-        let requestPath = '/'
+        let requestPath = HttpStdin.path
         const request = new Request(requestPath.toString(), HttpStdin.query)
 
         // Call handler, generate response
