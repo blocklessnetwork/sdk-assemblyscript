@@ -37,13 +37,19 @@ export class Env {
 
 export class CGIExtension {
     fileName: string
+    alias: string
+    md5: string
+    description: string
 
-    constructor(fileName:string) {
+    constructor(fileName :string, alias :string, md5 :string, description :string) {
         this.fileName = fileName
+        this.alias = alias
+        this.md5 = md5
+        this.description = description
     }
 
     toString(): string {
-        return `{fileName:${this.fileName}}`
+        return `{fileName:${this.fileName},  alias:${this.alias}, md5:${this.md5}, description:${this.description}}`
     }
 }
 
@@ -65,11 +71,12 @@ export function cgiExtendsList(): Array<CGIExtension>|null {
             let val = vals[i];
             if (val.isObj) {
                 let obj = <json.JSON.Obj>val;
-                let fn = obj.getString("fileName");
-                if (fn != null) {
-                    let ext = new CGIExtension(fn.toString());
-                    result.push(ext);
-                }
+                let fn = obj.getString("fileName")!;
+                let alias = obj.getString("alias")!;
+                let md5 = obj.getString("md5")!;
+                let description = obj.getString("description")!;
+                let ext = new CGIExtension(fn.toString(), alias.toString(), md5.toString(), description.toString());
+                result.push(ext);
             }
         }
 

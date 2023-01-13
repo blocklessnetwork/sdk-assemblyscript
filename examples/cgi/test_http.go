@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -18,6 +19,18 @@ type HttpRequest struct {
 func main() {
 	var buf []byte
 	var err error
+	var ext_verify bool = false
+
+	for i := 0; i < len(os.Args); i++ {
+		if os.Args[i] == "--ext_verify" {
+			ext_verify = true
+		}
+	}
+
+	if ext_verify {
+		fmt.Println(`{"alias":"http2", "description":"eeeeee", "is_cgi":true}`)
+		return
+	}
 	reader := bufio.NewReader(os.Stdin)
 	//protocol is simple
 	// number for len\r\nbody\r\n

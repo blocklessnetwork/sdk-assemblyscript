@@ -9,6 +9,7 @@ function test_list_cgi(): void {
         Console.log(`${l}`);
 }
 
+/**
 function test_read_stdout(): void {
     let command = new CgiCommand("ls", ["-l", "."], null);
     let rs = command.exec();
@@ -35,7 +36,7 @@ function test_pwd(): void {
         Console.log(`${l}`);
     }
     command.close();
-}
+} 
 
 function test_read_stderr(): void {
     let command = new CgiCommand("ls", ["-l", "/eeeee"], null);
@@ -48,13 +49,13 @@ function test_read_stderr(): void {
         Console.log(read_string);
     }
     command.close();
-}
+}*/
 
 function test_simple_protocol_for_req_stream(): void {
-    let command = new CgiCommand("test_http", null, null);
+    let command = new CgiCommand("http2", null, null);
     let rs = command.exec();
     if (rs == true) {
-        let req = '{"Url":"http://www.163.com"}';
+        let req = '{"Url":"http://httpbin.org/anything"}';
         let req_len = req.length;
         const SEP = "\r\n";
         let head = `${req_len}${SEP}`;
@@ -62,11 +63,11 @@ function test_simple_protocol_for_req_stream(): void {
         command.stdinWriteString(`${req}${SEP}`);
         let buf = new Array<u8>(1024);
         let l = command.stdoutRead(buf);
-        Console.log(`.163.com readbytes len:${l}`);
+        Console.log(`httpbin.org readbytes len:${l}`);
         let read_string = buffer2string(buf, l);
         Console.log(read_string);
 
-        req = '{"Url":"http://www.baidu.com"}';
+        req = '{"Url":"http://httpbin.org/anything"}';
         req_len = req.length;
         head = `${req_len}${SEP}`;
         command.stdinWriteString(head);
@@ -75,7 +76,7 @@ function test_simple_protocol_for_req_stream(): void {
         let all_buff: u8[] = new Array(0);
         l = command.stdoutRead(buf);
         all_buff = all_buff.concat(buf.slice(0, l));
-        Console.log(`baidu.com readbytes len:${l}`);
+        Console.log(`httpbin.org readbytes len:${l}`);
         read_string = buffer2string(all_buff, all_buff.length);
         Console.log(read_string);
     }
@@ -85,10 +86,11 @@ function test_simple_protocol_for_req_stream(): void {
 
 
 function test_simple_protocol_full_stream(): void {
-    let command = new CgiCommand("test_http_with_resp_protocol", null, null);
+    //http1 is the alias
+    let command = new CgiCommand("http1", null, null);
     let rs = command.exec();
     if (rs == true) {
-        let req = '{"Url":"http://www.163.com"}';
+        let req = '{"Url":"http://httpbin.org/anything"}';
         let req_len = req.length;
         const SEP = "\r\n";
         let head = `${req_len}${SEP}`;
@@ -97,7 +99,7 @@ function test_simple_protocol_full_stream(): void {
         let buf = new Array<u8>(1024);
         let l = command.stdoutRead(buf);
         Console.log(`test_simple_protocol_full_stream`);
-        Console.log(`.163.com readbytes len:${l}`);
+        Console.log(`httpbin.org readbytes len:${l}`);
         let body_len_idx = arrayIndex(buf, [13, 10]);
         let body_len_buf = buf.slice(0, body_len_idx);
         //parse the head using the protocol, indicator the length of body.
@@ -109,7 +111,7 @@ function test_simple_protocol_full_stream(): void {
 
         Console.log(read_string);
 
-        req = '{"Url":"http://www.baidu.com"}';
+        req = '{"Url":"http://httpbin.org/anything"}';
         req_len = req.length;
         head = `${req_len}${SEP}`;
         command.stdinWriteString(head);
@@ -117,7 +119,7 @@ function test_simple_protocol_full_stream(): void {
         buf = new Array<u8>(65535);
         l = command.stdoutRead(buf);
         
-        Console.log(`baidu.com readbytes len:${l}`);
+        Console.log(`httpbin.org readbytes len:${l}`);
         body_len_idx = arrayIndex(buf, [13, 10]);
         body_len_buf = buf.slice(0, body_len_idx);
         //parse the head using the protocol, indicator the length of body.
@@ -140,12 +142,12 @@ function test_simple_protocol_full_stream(): void {
 test_list_cgi();
 
 //stdout test with the correct command.
-test_read_stdout();
+//test_read_stdout();
 
 //stderr test with the error command.
-test_read_stderr();
+//test_read_stderr();
 
-test_pwd();
+//test_pwd();
 
 test_simple_protocol_for_req_stream();
 
