@@ -2,7 +2,6 @@ import {errno, handle, ptr, StatusCode} from "../types";
 import {SUCCESS} from "../error";
 import { JSONEncoder } from "../json";
 import { json } from "..";
-import { Console } from "as-wasi/assembly";
 
 @external("blockless_s3", "bucket_command")
 declare function bucket_command(cmd: u16, opts: ptr<u8>, opts_len: u32, fd: ptr<handle>): errno

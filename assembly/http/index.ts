@@ -1,7 +1,4 @@
 import { JSON } from "../json";
-import { Buffer } from "../json/util";
-import { encode } from "../base64";
-import { Console } from "as-wasi/assembly";
 import { HttpHandle, HttpOptions, HttpOpen } from "./handler";
 import { HttpStdin } from "./stdin"
 
@@ -149,7 +146,7 @@ class HttpComponent {
 
         // Encode body into buffer
         if (response && response.body) {
-            Console.write(response.toString(), false)
+            process.stdout.write(response.toString())
         }
     }
 }

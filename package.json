@@ -8,6 +8,7 @@
     "clean": "rm -rf build/"
   },
   "dependencies": {
+    "@assemblyscript/wasi-shim": "^0.1.0",
     "as-wasi": "^0.4.6",
     "assemblyscript": "^0.20.10",
     "wasi": "^0.0.6"
