@@ -1,7 +1,6 @@
 {
   "name": "@blockless/sdk",
   "version": "1.0.1",
-  "main": "assembly/index.ts",
   "scripts": {
     "build:example:debug": "asc examples/cgi.ts --target debug",
     "build:example:release": "asc examples/http.ts --target release",
@@ -11,6 +10,9 @@
     "@assemblyscript/wasi-shim": "^0.1.0",
     "as-wasi": "^0.4.6",
     "wasi": "^0.0.6"
+  },
+  "devDependencies": {
+    "assemblyscript": "latest"
   },
   "type": "module",
   "license": "APACHE-2.0"
