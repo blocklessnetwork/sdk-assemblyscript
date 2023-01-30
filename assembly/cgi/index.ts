@@ -231,6 +231,32 @@ export class CgiCommand {
         }
         return load<u32>(num_buf);
     }
-    
+
+    callMethod(method: string, parameters: string[] | null): string {
+        const SEP = "\r\n"
+
+        let parametersArray = new JSONEncoder()
+        parametersArray.pushArray(null)
+        if (parameters) {
+            for (let i = 0; i < parameters.length; i++) {
+                const val = parameters[i]
+                if (val.indexOf('{') !== -1 || val.indexOf('[') !== -1) {
+                    parametersArray.setRaw(parameters[i]);
+                } else {
+                    parametersArray.setString(null, parameters[i]);
+                }
+            }
+        }
+        parametersArray.popArray()
+
+        const req = `{"method":"${method}","parameters":${parametersArray.toString()}}`
+        this.stdinWriteString(`${req.length}${SEP}`)
+        this.stdinWriteString(`${req}${SEP}`)
+
+        let buf = new Array<u8>(1024)
+        let str = buffer2string(buf, this.stdoutRead(buf))
+
+        return str
+    }   
 }
 
