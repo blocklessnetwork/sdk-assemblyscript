@@ -13,6 +13,7 @@ if (handle != null) {
   Console.log(`code:${handle!}`);
   Console.log(handle!.getHeader("Content-Type")!);
   let body = handle!.getAllBody()!;
+  Console.log(`${body}`)
   
   let jsonObj = <json.JSON.Obj>json.JSON.parse(body);
   let kvs = jsonObj.valueOf();
