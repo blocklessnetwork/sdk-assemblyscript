@@ -23,6 +23,11 @@ export class JSONEncoder {
     return this.result.join("");
   }
 
+  setRaw(value: string): void {
+    this.writeKey(null);
+    this.write(value);
+  }
+
   setString(name: string | null, value: string): void {
     this.writeKey(name);
     this.writeString(value);
