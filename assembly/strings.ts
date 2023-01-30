@@ -1,3 +1,4 @@
+import { ptr } from "./types";
 
 export function buffer2string(v: Array<u8>, l: u32): string {
     return String.UTF8.decodeUnsafe(v.dataStart, l);
@@ -5,6 +6,13 @@ export function buffer2string(v: Array<u8>, l: u32): string {
 
 export function string2buffer(v: Array<u8>): ArrayBuffer {
     return String.UTF8.encode(v);
+}
+
+export function stringFromArray(data: ptr<u8>, len: i32): string {
+    let str = "";
+    for (let i = 0; i < len; i += 1)
+        str += String.fromCharCode(load<u8>(data + i));
+    return str;
 }
 
 export function arrayIndex(v: Array<u8>, sv: Array<u8>): i32 {
