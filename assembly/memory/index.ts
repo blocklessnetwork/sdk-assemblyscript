@@ -115,19 +115,14 @@ export class EnvVars {
 
   static initalize(): void {
     EnvVars.vars = new Map<string, string>();
+    const blsEnv = new EnvVars().read().toJSON()
 
-    let buf: u8[] = new Array(1024);
-    readEnvVars(buf);
+    if (blsEnv.keys.length > 0) {
+      for (let i = 0; i < blsEnv.keys.length; i++) {
+        const key = blsEnv.keys[i];
 
-    if (buf != null) {
-      const string = String.UTF8.decodeUnsafe(buf.dataStart, buf.length);
-      const json: JSON.Obj = <JSON.Obj> (JSON.parse(string));
-
-      for (let i = 0; i < json.keys.length; i++) {
-        const key = json.keys[i];
-
-        if (json.has(key)) {
-          EnvVars.vars!.set(key, json.getString(key)!._str);
+        if (blsEnv.has(key)) {
+          EnvVars.vars!.set(key, blsEnv.getString(key)!._str);
         }
       }
     }
@@ -138,6 +133,6 @@ export class EnvVars {
       EnvVars.initalize();
     }
 
-    return EnvVars.vars!.get(key) || "";
+    return EnvVars.vars!.has(key) ? EnvVars.vars!.get(key) : '';
   }
 }
