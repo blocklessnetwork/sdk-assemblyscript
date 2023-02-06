@@ -2,7 +2,6 @@ import {SUCCESS} from "../error";
 import {errno, handle, ptr, StatusCode} from "../types";
 import {JSONEncoder} from "../json";
 import { buffer2string } from "../strings";
-import { Console } from "as-wasi/assembly";
 import { json } from "..";
 
 @external("blockless_cgi", "cgi_open")
