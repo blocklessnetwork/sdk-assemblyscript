@@ -78,19 +78,17 @@ export class Stdin {
     }
 }
 
-
-
 export class EnvVars {
   buf: u8[] = new Array(1024);
-  constructor() {
+  private static vars: Map<string, string> | null = null;
 
-  }
+  constructor() {}
 
   read(): EnvVars {
-      let tbuf: u8[] = new Array(1024);
-      let bs = readEnvVars(tbuf);
-      this.buf = tbuf;
-      return this;
+    let tbuf: u8[] = new Array(1024);
+    let bs = readEnvVars(tbuf);
+    this.buf = tbuf;
+    return this;
   }
 
   toString(): string {
@@ -114,6 +112,27 @@ export class EnvVars {
 
     return jsonObj;
   }
+
+  static initalize(): void {
+    EnvVars.vars = new Map<string, string>();
+    const blsEnv = new EnvVars().read().toJSON()
+
+    if (blsEnv.keys.length > 0) {
+      for (let i = 0; i < blsEnv.keys.length; i++) {
+        const key = blsEnv.keys[i];
+
+        if (blsEnv.has(key)) {
+          EnvVars.vars!.set(key, blsEnv.getString(key)!._str);
+        }
+      }
+    }
+  }
+
+  static get(key: string): string {
+    if (EnvVars.vars === null) {
+      EnvVars.initalize();
+    }
+
+    return EnvVars.vars!.has(key) ? EnvVars.vars!.get(key) : '';
+  }
 }
-
-
