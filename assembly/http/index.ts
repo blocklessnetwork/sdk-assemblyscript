@@ -126,7 +126,6 @@ class Response {
     toString(): string {
         let content = ''
 
-        // const contentType = this.headers.has('Content-Type') ? this.headers.get('Content-Type') : 'text/plain'
         content = this.body
 
         return content
@@ -144,6 +143,13 @@ class HttpComponent {
         // Call handler, generate response
         const response = handler(request)
 
+        // Encode body into buffer
+        if (response && response.body) {
+            process.stdout.write(response.toString())
+        }
+    }
+
+    static send(response: Response): void {
         // Encode body into buffer
         if (response && response.body) {
             process.stdout.write(response.toString())
