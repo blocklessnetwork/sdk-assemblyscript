@@ -149,6 +149,14 @@ class HttpComponent {
         }
     }
 
+    static getRequest(): Request {
+        HttpStdin.initalize()
+
+        // Build request
+        let requestPath = HttpStdin.path
+        return new Request(requestPath.toString(), HttpStdin.query)
+    }
+
     static send(response: Response): void {
         // Encode body into buffer
         if (response && response.body) {
