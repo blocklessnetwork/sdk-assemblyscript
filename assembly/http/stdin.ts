@@ -18,7 +18,12 @@ export class HttpStdin {
                 HttpStdin.query.set(pair[0].trim(), pair.length > 1 ? pair[1].trim() : '')
             })
         } else if (blsPathQuerySplit.length === 1) {
-            HttpStdin.path = blsPathQuerySplit[0]
+            const blsArgumentSplit = blsPathQuerySplit[0].split(' ')
+            HttpStdin.path = blsArgumentSplit[0]
+            blsArgumentSplit.forEach(i => {
+                const pair = i.split('=')
+                HttpStdin.query.set(pair[0].trim(), pair.length > 1 ? pair[1].trim() : '')
+            })
         }
     }
 }
