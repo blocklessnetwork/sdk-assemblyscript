@@ -2,44 +2,32 @@
 # yarn lockfile v1
 
 
-as-wasi@^0.4.6:
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/as-wasi/-/as-wasi-0.4.6.tgz#e32f1e65ff1bc5abe910362a8024019143910f26"
-  integrity sha512-HFWdxLVHrOfchf/M+gE2IczsHBkWXqekZZfHYmDj6WP1UnpQC4k44OeyjqmSwC/db1tppEwCUssDCuFGnMdJZw==
+"@assemblyscript/wasi-shim@^0.1", "@assemblyscript/wasi-shim@^0.1.0":
+  "integrity" "sha512-fSLH7MdJHf2uDW5llA5VCF/CG62Jp2WkYGui9/3vIWs3jDhViGeQF7nMYLUjpigluM5fnq61I6obtCETy39FZw=="
+  "resolved" "https://registry.npmjs.org/@assemblyscript/wasi-shim/-/wasi-shim-0.1.0.tgz"
+  "version" "0.1.0"
 
-assemblyscript@latest:
-  version "0.26.3"
-  resolved "https://registry.yarnpkg.com/assemblyscript/-/assemblyscript-0.26.3.tgz#52b204f7bd60f92d46f4ffe4d1dc29280f3e0bbc"
-  integrity sha512-mC54krcXy5OYmNKccxDU9VgLXsaW7UWIlpCBcsvUT9vNBu9867xFOmlyCecEabDaXbP0IhWvXY51R4Rvn9PC3A==
+"as-wasi@^0.6.0":
+  "integrity" "sha512-2EHzHhkdnDrgSuO6a1Lm0k/DIxjeupBUpDmli1xpB74y9ArQuvEunc1LqyPT4yfx10lTyaYkzDmelBAcasQH6g=="
+  "resolved" "https://registry.npmjs.org/as-wasi/-/as-wasi-0.6.0.tgz"
+  "version" "0.6.0"
   dependencies:
-    binaryen "111.0.0-nightly.20230111"
-    long "^5.2.0"
+    "@assemblyscript/wasi-shim" "^0.1"
 
-binaryen@111.0.0-nightly.20230111:
-  version "111.0.0-nightly.20230111"
-  resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-111.0.0-nightly.20230111.tgz#251226c419ec2fb64037314f476d0e47965c3a84"
-  integrity sha512-CUEED/yMHoGeGnOZhQJW5+Luf5z/F58PHK5lw2feh5fbbqauodgnxyYkc2oxSjYwHHRCmFmaYyeQH4zlhRbebg==
-
-bindings@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.5.0.tgz#10353c9e945334bc0511a6d90b38fbc7c9c504df"
-  integrity sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==
+"assemblyscript@^0.25.0":
+  "integrity" "sha512-67TQOMvKo23htvSK6lhOzsoQjnplNKkdwgq925uBvQZLDbg9pHfAWhg/R8i8tqKrtk6GH8haOJbQY4oNSQqehA=="
+  "resolved" "https://registry.npmjs.org/assemblyscript/-/assemblyscript-0.25.2.tgz"
+  "version" "0.25.2"
   dependencies:
-    file-uri-to-path "1.0.0"
+    "binaryen" "110.0.0-nightly.20221105"
+    "long" "^5.2.0"
 
-file-uri-to-path@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz#553a7b8446ff6f684359c445f1e37a05dacc33dd"
-  integrity sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
+"binaryen@110.0.0-nightly.20221105":
+  "integrity" "sha512-OBESOc51q3SwgG8Uv8nMzGnSq7LJpSB/Fu8B3AjlZg6YtCEwRnlDWlnwNB6mdql+VdexfKmNcsrs4K7MYidmdQ=="
+  "resolved" "https://registry.npmjs.org/binaryen/-/binaryen-110.0.0-nightly.20221105.tgz"
+  "version" "110.0.0-nightly.20221105"
 
-long@^5.2.0:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/long/-/long-5.2.1.tgz#e27595d0083d103d2fa2c20c7699f8e0c92b897f"
-  integrity sha512-GKSNGeNAtw8IryjjkhZxuKB3JzlcLTwjtiQCHKvqQet81I93kXslhDQruGI/QsddO83mcDToBVy7GqGS/zYf/A==
-
-wasi@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/wasi/-/wasi-0.0.6.tgz#dc262b456c643241194b5669736cb88b2f71039f"
-  integrity sha512-D3f4Q/3LojW1uMloOC1OuFlGy2u22hLqpskAz0OkmoYeWIwVYf8XBuc9ihDGJnNf3lfNvqM4s0030sN0UUXExw==
-  dependencies:
-    bindings "^1.5.0"
+"long@^5.2.0":
+  "integrity" "sha512-GKSNGeNAtw8IryjjkhZxuKB3JzlcLTwjtiQCHKvqQet81I93kXslhDQruGI/QsddO83mcDToBVy7GqGS/zYf/A=="
+  "resolved" "https://registry.npmjs.org/long/-/long-5.2.1.tgz"
+  "version" "5.2.1"
