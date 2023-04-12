@@ -8,11 +8,11 @@
     "clean": "rm -rf build/"
   },
   "dependencies": {
-    "as-wasi": "^0.4.6",
-    "wasi": "^0.0.6"
+    "as-wasi": "^0.6.0"
   },
   "devDependencies": {
-    "assemblyscript": "latest"
+    "@assemblyscript/wasi-shim": "^0.1.0",
+    "assemblyscript": "^0.25.0"
   },
   "type": "module",
   "license": "APACHE-2.0"

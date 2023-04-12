@@ -83,26 +83,22 @@ class Handler extends JSONHandler {
 }
 
 namespace _JSON {
-  // @ts-ignore decorator is valid
-  @lazy
-  export const handler: Handler = new Handler();
-  // @ts-ignore decorator is valid
-  @lazy
-  export const decoder: JSONDecoder<Handler> = new JSONDecoder<Handler>(
-    _JSON.handler
-  );
-
   /** Parses a string or Uint8Array and returns a Json Value. */
   export function parse<T = Uint8Array>(str: T): Value {
+    const handler: Handler = new Handler();
+    const decoder: JSONDecoder<Handler> = new JSONDecoder<Handler>(
+      handler
+    );
+
     var arr: Uint8Array;
     if (isString<T>(str)) {
       arr = Buffer.fromString(<string>str);
     } else {
       arr = changetype<Uint8Array>(str);
     }
-    _JSON.decoder.deserialize(arr);
-    const res = _JSON.decoder.handler.peek;
-    _JSON.decoder.handler.reset();
+    decoder.deserialize(arr);
+    const res = decoder.handler.peek;
+    decoder.handler.reset();
     return res;
   }
 }

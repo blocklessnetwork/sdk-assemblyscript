@@ -27,26 +27,12 @@ $ npm i @blockless/sdk
 import "wasi";
 
 import { Console } from "as-wasi/assembly";
-import { json, http } from "@blockless/sdk";
+import { http } from "@blockless/sdk";
 
-let handle: http.HttpHandle | null = http.HttpOpen(
-  "https://demo.bls.dev/tokens",
-  new http.HttpOptions("GET")
-);
+const client = new http.Client();
+const data = client.get("https://httpbin.org/json");
 
-if (handle != null) {
-  Console.log(`code:${handle!}`);
-  Console.log(handle!.getHeader("Content-Type")!);
-  let body = handle!.getAllBody()!;
-  let jsonObj = <json.JSON.Obj>json.JSON.parse(body);
-  let arr = jsonObj.getArr("tokens");
-  if (arr != null) {
-    let vals = arr.valueOf();
-    vals.forEach((v) => {
-      Console.log(v.toString());
-    });
-  }
-  handle!.close();
+console.log(data.toString())
 }
 ```
 
