@@ -1,5 +1,3 @@
-import "wasi";
-
 import { Console } from "as-wasi/assembly";
 import { json, ipfs } from "../assembly";
 import { FileWriteOptions } from "../assembly/ipfs";

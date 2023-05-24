@@ -1,6 +1,4 @@
 // The entry file of your WebAssembly.
-import "wasi";
-
 import { Console } from "as-wasi/assembly";
 import { json, http } from "../assembly";
 
