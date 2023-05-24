@@ -1,4 +1,3 @@
-import "wasi";
 import { Console } from "as-wasi/assembly";
 import { CgiCommand, Env, cgiExtendsList} from "../assembly/cgi";
 import { buffer2string, string2buffer, arrayIndex} from "../assembly/strings";

@@ -1,4 +1,3 @@
-import "wasi";
 import { Bucket ,S3Configure} from "../assembly/awss3";
 import { Console } from "as-wasi/assembly";
 

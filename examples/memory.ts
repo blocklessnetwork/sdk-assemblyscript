@@ -1,4 +1,3 @@
-import "wasi";
 import { Console } from "as-wasi/assembly";
 import { memory } from "../assembly";
 
