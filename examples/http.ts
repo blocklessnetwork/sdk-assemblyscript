@@ -4,7 +4,7 @@ import { json, http } from "../assembly";
 
 let handle: http.HttpHandle | null = http.HttpOpen(
   "http://httpbin.org/anything",
-  new http.HttpHandleOptions("GET")
+  new http.HttpOptions("GET")
 );
 
 if (handle != null) {
