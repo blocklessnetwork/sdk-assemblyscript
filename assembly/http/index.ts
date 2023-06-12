@@ -74,12 +74,20 @@ class Request {
     public method: string
     public headers: Map<string, string>
     public query: Map<string, string>
+    public body: string | null
 
-    constructor(method: string, url: string, query: Map<string, string>) {
+    constructor(
+        method: string,
+        url: string,
+        query: Map<string, string>,
+        headers: Map<string, string>,
+        body: string
+    ) {
         this.method = method
         this.url = url
         this.query = query
-        this.headers = new Map()
+        this.headers = headers
+        this.body = !!body ? body : null
     }
 }
 
@@ -139,9 +147,13 @@ class HttpComponent {
         HttpStdin.initalize()
 
         // Build request
-        let requestPath = HttpStdin.path
-        let requestMethod = HttpStdin.method
-        const request = new Request(requestMethod.toString(), requestPath.toString(), HttpStdin.query)
+        const request = new Request(
+            HttpStdin.method,
+            HttpStdin.path,
+            HttpStdin.query,
+            HttpStdin.headers,
+            HttpStdin.body
+        )
 
         // Call handler, generate response
         const response = handler(request)
@@ -156,9 +168,13 @@ class HttpComponent {
         HttpStdin.initalize()
 
         // Build request
-        let requestPath = HttpStdin.path
-        let requestMethod = HttpStdin.method
-        return new Request(requestMethod.toString(), requestPath.toString(), HttpStdin.query)
+        return new Request(
+            HttpStdin.method,
+            HttpStdin.path,
+            HttpStdin.query,
+            HttpStdin.headers,
+            HttpStdin.body
+        )
     }
 
     static send(response: Response): void {
