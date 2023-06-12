@@ -70,13 +70,15 @@ class Client {
 }
 
 class Request {
-    public url: string;
+    public url: string
+    public method: string
     public headers: Map<string, string>
     public query: Map<string, string>
 
-    constructor(url: string, query: Map<string, string>) {
-        this.url = url;
-        this.query = query;
+    constructor(method: string, url: string, query: Map<string, string>) {
+        this.method = method
+        this.url = url
+        this.query = query
         this.headers = new Map()
     }
 }
@@ -138,7 +140,8 @@ class HttpComponent {
 
         // Build request
         let requestPath = HttpStdin.path
-        const request = new Request(requestPath.toString(), HttpStdin.query)
+        let requestMethod = HttpStdin.method
+        const request = new Request(requestMethod.toString(), requestPath.toString(), HttpStdin.query)
 
         // Call handler, generate response
         const response = handler(request)
@@ -154,7 +157,8 @@ class HttpComponent {
 
         // Build request
         let requestPath = HttpStdin.path
-        return new Request(requestPath.toString(), HttpStdin.query)
+        let requestMethod = HttpStdin.method
+        return new Request(requestMethod.toString(), requestPath.toString(), HttpStdin.query)
     }
 
     static send(response: Response): void {
