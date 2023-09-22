@@ -12,7 +12,7 @@ export class HttpStdin {
         const blsStdinString = blsStdin.toString().replaceAll('\0', '').trim()
         const blsPathQuerySplit = blsStdinString.split('?')
 
-        const blsEnv = new memory.EnvVars().read()
+        const blsEnv = new memory.EnvVars(2048).read()
         const blsEnvString = blsEnv.toJSON()
 
         if (blsEnvString.has('BLS_REQUEST_METHOD')) {
