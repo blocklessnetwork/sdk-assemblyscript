@@ -43,13 +43,16 @@ function readEnvVars(buf: Array<u8>): i32 {
 }
 
 export class Stdin {
-    buf: u8[] = new Array(1024);
-    constructor() {
+    private buf: u8[] = new Array()
+    private bufLen: i32
 
+    constructor(bufLen: i32 = 1024) {
+      this.bufLen = bufLen >= 1024 ? bufLen : 1024;
+      this.buf = new Array(this.bufLen);
     }
 
     read(): Stdin {
-        let tbuf: u8[] = new Array(1024);
+        let tbuf: u8[] = new Array(this.bufLen);
         let bs = readStdin(tbuf);
         this.buf = tbuf;
         return this;
@@ -79,13 +82,17 @@ export class Stdin {
 }
 
 export class EnvVars {
-  buf: u8[] = new Array(1024);
   private static vars: Map<string, string> | null = null;
+  private bufLen: i32
+  private buf: u8[] = new Array()
 
-  constructor() {}
+  constructor(bufLen: i32 = 1024) {
+    this.bufLen = bufLen >= 1024 ? bufLen : 1024;
+    this.buf = new Array(this.bufLen);
+  }
 
   read(): EnvVars {
-    let tbuf: u8[] = new Array(1024);
+    let tbuf: u8[] = new Array(this.bufLen);
     let bs = readEnvVars(tbuf);
     this.buf = tbuf;
     return this;
