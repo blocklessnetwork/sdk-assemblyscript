@@ -29,7 +29,7 @@ export class HttpStdin {
         }
 
         if (blsEnvString.has('BLS_REQUEST_BODY')) {
-            HttpStdin.body = blsEnvString.get('BLS_REQUEST_BODY')!.toString()
+            HttpStdin.body = decodeURIComponent(blsEnvString.get('BLS_REQUEST_BODY')!.toString())
         }
 
         if (
