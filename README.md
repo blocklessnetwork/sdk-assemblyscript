@@ -22,7 +22,7 @@ $ npm i @blockless/sdk
 
 ## Example of using this SDK.
 
-```ts
+```js
 // The entry file of your WebAssembly.
 import "wasi";
 
