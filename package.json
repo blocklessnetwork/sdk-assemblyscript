@@ -5,6 +5,8 @@
   "scripts": {
     "build:example:debug": "asc examples/cgi.ts --target debug",
     "build:example:release": "asc examples/cgi.ts --target release",
+    "build:example:http": "asc examples/http.ts --target release",
+    "build:example:llm": "asc examples/llm.ts --target release",
     "clean": "rm -rf build/"
   },
   "dependencies": {
