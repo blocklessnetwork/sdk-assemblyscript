@@ -3,7 +3,6 @@ import { SUCCESS } from "../error";
 import { JSONEncoder } from "../json";
 import { json } from "..";
 
-// External function declarations for WASM imports
 @external("blockless_llm", "llm_set_model_request")
 declare function llm_set_model_request(model_ptr: ptr<u8>, model_len: u32, fd: ptr<handle>): errno;
 
@@ -25,7 +24,6 @@ declare function llm_read_prompt_response(buf: ptr<u8>, size: u32, num: ptr<u32>
 @external("blockless_llm", "llm_close")
 declare function llm_close(fd: handle): errno;
 
-// LLM Options class
 export class LlmOptions {
     systemMessage: string;
     temperature: f32;
@@ -80,7 +78,6 @@ export class LlmOptions {
     }
 }
 
-// Main BlocklessLLM class
 export class BlocklessLlm {
     private handle: handle;
     private modelName: string;
