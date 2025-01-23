@@ -4,16 +4,16 @@ import { JSONEncoder } from "../json"
 import { buffer2string, stringFromArray } from "../strings"
 
 @external("blockless_http", "http_req")
-  declare function httpOpen(url: ptr<u8>, url_len: u32, opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
+declare function httpOpen(url: ptr<u8>, url_len: u32, opts: ptr<u8>, opts_len: u32, fd: ptr<handle>, code: ptr<u32>): errno
 
 @external("blockless_http", "http_read_header")
-  declare function httpReadHeader(fd: ptr<handle>, header: ptr<u8>, header_len: u32, buf: ptr<u8>, buf_len: u32, num: ptr<u32>): errno
+declare function httpReadHeader(fd: ptr<handle>, header: ptr<u8>, header_len: u32, buf: ptr<u8>, buf_len: u32, num: ptr<u32>): errno
 
 @external("blockless_http", "http_read_body")
-  declare function httpReadBody(fd: ptr<handle>, buf: ptr<u8>, buf_len: u32, num: ptr<u32>): errno
+declare function httpReadBody(fd: ptr<handle>, buf: ptr<u8>, buf_len: u32, num: ptr<u32>): errno
 
 @external("blockless_http", "http_close")
-  declare function httpClose(fd: ptr<handle>): errno
+declare function httpClose(fd: ptr<handle>): errno
 
 export class HttpOptions {
   //http method, GET POST etc.
@@ -111,7 +111,7 @@ export function HttpOpen(url: string, opts: HttpOptions): HttpHandle | null {
   let method = opts.method
   let c_timeout = opts.connectTimeout
   let r_timeout = opts.readTimeout
-  let opts_s = ""
+
   let encoder = new JSONEncoder()
   encoder.pushObject("")
   if (body != null)
@@ -124,6 +124,7 @@ export function HttpOpen(url: string, opts: HttpOptions): HttpHandle | null {
   encoder.popObject()
   let opts_utf8_buf = String.UTF8.encode(encoder.toString())
   let opts_utf8_len: usize = opts_utf8_buf.byteLength
+
   let url_utf8 = changetype<usize>(url_utf8_buf)
   let opts_utf8 = changetype<usize>(opts_utf8_buf)
   let fd_buf = memory.data(8)
@@ -132,7 +133,7 @@ export function HttpOpen(url: string, opts: HttpOptions): HttpHandle | null {
   if (rs != 0) {
     return null
   }
-  let fd = load<u32>(fd_buf)
-  let code = load<u32>(code_buf)
+  let fd = load<handle>(fd_buf)
+  let code = load<StatusCode>(code_buf)
   return new HttpHandle(fd, code)
 }
