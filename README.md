@@ -1,27 +1,27 @@
-# blockless-sdk-assembly-script
+# Blockless SDK for AssemblyScript
 
 ![](blockless.png)
 
-** This sdk is configured to work with `assembly-script`. **
+**This SDK is configured to work with `AssemblyScript`.**
 
-## It currently has built in support for
+## Built-in Support for
 
 - `cgi`
 - `http`
 - `ipfs`
 - `llm`
 
-## Install this SDK
+## Install This SDK
 
-This module can be installed into any existing project. New projects should use `@blockless/app` to start a fresh `WASM` module.
+This module can be installed into any existing project. For new projects, use `@blockless/app` to start a fresh `WASM` module.
 
 ```bash
-npm i @blockless/sdk
-# or using deno
+npm install @blockless/sdk
+# Or using Deno
 deno add @blockless/sdk
 ```
 
-## Example of using this SDK.
+## Example Usage
 
 ```js
 // The entry file of your WebAssembly.
@@ -36,9 +36,9 @@ const data = client.get("https://httpbin.org/json");
 console.log(data.toString())
 ```
 
-### How to build
+### How to Build
 
-Use `asc` to build the `typescript` source into a deployable `WASM` file.
+Use `asc` to build the `TypeScript` source into a deployable `WASM` file.
 
 ```bash
 asc examples/index.ts --target release
