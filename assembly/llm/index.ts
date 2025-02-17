@@ -78,6 +78,106 @@ export class LlmOptions {
     }
 }
 
+export class ModelQuantization {
+    DEFAULT: string;
+    private quantizations: Map<string, string>;
+
+    constructor(baseModelName: string, quantizations: Map<string, string>) {
+        this.DEFAULT = baseModelName;
+        this.quantizations = quantizations;
+    }
+
+    get(key: string): string | null {
+        if (key === "DEFAULT") return this.DEFAULT;
+        return this.quantizations.has(key) ? this.quantizations.get(key) : null;
+    }
+
+    keys(): string[] {
+        const keys = ["DEFAULT"];
+        const quantKeys = this.quantizations.keys();
+        for (let i = 0; i < quantKeys.length; i++) {
+            keys.push(quantKeys[i]);
+        }
+        return keys;
+    }
+
+    // Helper method to convert to JSON string
+    toString(): string {
+        const obj: Map<string, string> = new Map();
+        obj.set("DEFAULT", this.DEFAULT);
+        
+        const quantKeys = this.quantizations.keys();
+        for (let i = 0; i < quantKeys.length; i++) {
+            const key = quantKeys[i];
+            obj.set(key, this.quantizations.get(key));
+        }
+        
+        return JSON.stringify(obj);
+    }
+}
+
+export class SupportedModels {
+    LLAMA_3_2_1B: ModelQuantization;
+    LLAMA_3_2_3B: ModelQuantization;
+    MISTRAL_7B: ModelQuantization;
+    MIXTRAL_8X7B: ModelQuantization;
+    GEMMA_2_2B: ModelQuantization;
+    GEMMA_2_7B: ModelQuantization;
+    GEMMA_2_9B: ModelQuantization;
+
+    constructor() {
+        // Initialize LLAMA_3_2_1B
+        const llama321bQuant = new Map<string, string>();
+        llama321bQuant.set("Q6_K", "Llama-3.2-1B-Instruct-Q6_K");
+        llama321bQuant.set("Q4F16_1", "Llama-3.2-1B-Instruct-q4f16_1");
+        this.LLAMA_3_2_1B = new ModelQuantization("Llama-3.2-1B-Instruct", llama321bQuant);
+
+        // Initialize LLAMA_3_2_3B
+        const llama323bQuant = new Map<string, string>();
+        llama323bQuant.set("Q6_K", "Llama-3.2-3B-Instruct-Q6_K");
+        llama323bQuant.set("Q4F16_1", "Llama-3.2-3B-Instruct-q4f16_1");
+        this.LLAMA_3_2_3B = new ModelQuantization("Llama-3.2-3B-Instruct", llama323bQuant);
+
+        // Initialize MISTRAL_7B
+        const mistralQuant = new Map<string, string>();
+        mistralQuant.set("Q4F16_1", "Mistral-7B-Instruct-v0.3-q4f16_1");
+        this.MISTRAL_7B = new ModelQuantization("Mistral-7B-Instruct-v0.3", mistralQuant);
+
+        // Initialize MIXTRAL_8X7B
+        const mixtralQuant = new Map<string, string>();
+        mixtralQuant.set("Q4F16_1", "Mixtral-8x7B-Instruct-v0.1-q4f16_1");
+        this.MIXTRAL_8X7B = new ModelQuantization("Mixtral-8x7B-Instruct-v0.1", mixtralQuant);
+
+        // Initialize GEMMA models
+        const gemma22bQuant = new Map<string, string>();
+        gemma22bQuant.set("Q4F16_1", "gemma-2-2b-it-q4f16_1");
+        this.GEMMA_2_2B = new ModelQuantization("gemma-2-2b-it", gemma22bQuant);
+
+        const gemma27bQuant = new Map<string, string>();
+        gemma27bQuant.set("Q4F16_1", "gemma-2-27b-it-q4f16_1");
+        this.GEMMA_2_7B = new ModelQuantization("gemma-2-27b-it", gemma27bQuant);
+
+        const gemma29bQuant = new Map<string, string>();
+        gemma29bQuant.set("Q4F16_1", "gemma-2-9b-it-q4f16_1");
+        this.GEMMA_2_9B = new ModelQuantization("gemma-2-9b-it", gemma29bQuant);
+    }
+
+    toString(): string {
+        const obj: Map<string, ModelQuantization> = new Map();
+        obj.set("LLAMA_3_2_1B", this.LLAMA_3_2_1B);
+        obj.set("LLAMA_3_2_3B", this.LLAMA_3_2_3B);
+        obj.set("MISTRAL_7B", this.MISTRAL_7B);
+        obj.set("MIXTRAL_8X7B", this.MIXTRAL_8X7B);
+        obj.set("GEMMA_2_2B", this.GEMMA_2_2B);
+        obj.set("GEMMA_2_7B", this.GEMMA_2_7B);
+        obj.set("GEMMA_2_9B", this.GEMMA_2_9B);
+        return JSON.stringify(obj);
+    }
+}
+
+// Singleton instance of SupportedModels
+export const MODELS = new SupportedModels();
+
 export class BlocklessLlm {
     private handle: handle;
     private modelName: string;
@@ -164,7 +264,7 @@ export class BlocklessLlm {
         return LlmOptions.fromBytes(buf.slice(0, num));
     }
 
-    chatRequest(prompt: string): string | null {
+    chat(prompt: string): string | null {
         let promptBytes = String.UTF8.encode(prompt);
         
         let code = llm_prompt_request(
