@@ -8,21 +8,18 @@ const options = new llm.LlmOptions(
 );
 
 // Initialize the LLM model with a specific model name
-const model = new llm.BlocklessLlm(
-    "Llama-3.1-8B-Instruct-q4f32_1-MLC",
-    options
-);
+const model = new llm.BlocklessLlm(llm.MODELS.LLAMA_3_2_1B.DEFAULT, options);
 
 // Get the current model name
 const modelName = model.getModel();
 Console.log("Using model: " + modelName!);
 
 // First chat request
-const response1 = model.chatRequest("What is your name?");
+const response1 = model.chat("What is your name?");
 Console.log("First response: " + response1!);
 
 // Second chat request
-const response2 = model.chatRequest("What is your name?");
+const response2 = model.chat("What is your name?");
 Console.log("Second response: " + response2!);
 
 // Get current options to verify state
